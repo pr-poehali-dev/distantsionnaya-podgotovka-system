@@ -567,13 +567,14 @@ const AdminPanel = () => {
                                         <TableHead>Дата начала</TableHead>
                                         <TableHead>Дата завершения</TableHead>
                                         <TableHead>Статус</TableHead>
+                                        <TableHead>Прогресс</TableHead>
                                         <TableHead>Действия</TableHead>
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                       {assignments.length === 0 ? (
                                         <TableRow>
-                                          <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                                          <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
                                             Курсы не назначены
                                           </TableCell>
                                         </TableRow>
@@ -605,11 +606,32 @@ const AdminPanel = () => {
                                                 className={
                                                   assignment.status === 'completed' 
                                                     ? 'bg-green-100 text-green-700 border-green-300' 
-                                                    : 'bg-blue-100 text-blue-700 border-blue-300'
+                                                    : assignment.status === 'in_progress'
+                                                    ? 'bg-pink-100 text-pink-700 border-pink-300'
+                                                    : 'bg-gray-100 text-gray-700 border-gray-300'
                                                 }
                                               >
-                                                {assignment.status === 'completed' ? 'Завершено' : 'Активировано'}
+                                                {assignment.status === 'completed' ? 'Завершено' : assignment.status === 'in_progress' ? 'В процессе' : 'Назначен'}
                                               </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                              <div className="flex items-center gap-3 min-w-[140px]">
+                                                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                  <div
+                                                    className={`h-full rounded-full transition-all ${
+                                                      assignment.progress === 100 
+                                                        ? 'bg-purple-600' 
+                                                        : assignment.progress >= 50
+                                                        ? 'bg-indigo-600'
+                                                        : 'bg-pink-600'
+                                                    }`}
+                                                    style={{ width: `${assignment.progress}%` }}
+                                                  />
+                                                </div>
+                                                <span className="text-sm font-semibold min-w-[45px] text-right">
+                                                  {assignment.progress}%
+                                                </span>
+                                              </div>
                                             </TableCell>
                                             <TableCell onClick={(e) => e.stopPropagation()}>
                                               <div className="flex gap-1">
