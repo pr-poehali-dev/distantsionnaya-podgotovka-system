@@ -27,12 +27,20 @@ const AdminPanel = () => {
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
   const [copiedLogin, setCopiedLogin] = useState<string | null>(null);
   const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
+  const [nameFilter, setNameFilter] = useState('');
+  const [organizationFilter, setOrganizationFilter] = useState('');
+  const [groupFilter, setGroupFilter] = useState('');
 
   const students = mockUsers.filter(u => u.role === 'student');
-  const filteredStudents = students.filter(s => 
-    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStudents = students.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesName = s.name.toLowerCase().includes(nameFilter.toLowerCase());
+    const matchesOrg = s.organization?.toLowerCase().includes(organizationFilter.toLowerCase());
+    const matchesGroup = s.group?.toLowerCase().includes(groupFilter.toLowerCase());
+    
+    return matchesSearch && matchesName && matchesOrg && matchesGroup;
+  });
 
   const copyToClipboard = (text: string, studentId: string) => {
     navigator.clipboard.writeText(text);
@@ -675,9 +683,42 @@ const AdminPanel = () => {
                       <TableHead className="w-8">
                         <input type="checkbox" className="rounded border-gray-300" />
                       </TableHead>
-                      <TableHead>ФИО</TableHead>
-                      <TableHead>Организация</TableHead>
-                      <TableHead>Группа</TableHead>
+                      <TableHead>
+                        <div className="space-y-2">
+                          <div>ФИО</div>
+                          <Input
+                            placeholder="Фильтр..."
+                            value={nameFilter}
+                            onChange={(e) => setNameFilter(e.target.value)}
+                            className="h-8 text-xs font-normal"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </TableHead>
+                      <TableHead>
+                        <div className="space-y-2">
+                          <div>Организация</div>
+                          <Input
+                            placeholder="Фильтр..."
+                            value={organizationFilter}
+                            onChange={(e) => setOrganizationFilter(e.target.value)}
+                            className="h-8 text-xs font-normal"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </TableHead>
+                      <TableHead>
+                        <div className="space-y-2">
+                          <div>Группа</div>
+                          <Input
+                            placeholder="Фильтр..."
+                            value={groupFilter}
+                            onChange={(e) => setGroupFilter(e.target.value)}
+                            className="h-8 text-xs font-normal"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </TableHead>
                       <TableHead>Курсы</TableHead>
                       <TableHead>Логин</TableHead>
                       <TableHead>Пароль</TableHead>
