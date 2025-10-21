@@ -669,13 +669,28 @@ const AdminPanel = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="mb-4">
+                <div className="mb-4 flex gap-3 items-center">
                   <Input
                     placeholder="Поиск по имени или email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="max-w-md"
                   />
+                  {(searchTerm || nameFilter || organizationFilter || groupFilter) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSearchTerm('');
+                        setNameFilter('');
+                        setOrganizationFilter('');
+                        setGroupFilter('');
+                      }}
+                    >
+                      <Icon name="X" size={16} className="mr-2" />
+                      Сбросить фильтры
+                    </Button>
+                  )}
                 </div>
 <Table>
                   <TableHeader>
