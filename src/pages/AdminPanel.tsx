@@ -32,6 +32,14 @@ const AdminPanel = () => {
   const [groupFilter, setGroupFilter] = useState('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [selectedOrganization, setSelectedOrganization] = useState('');
+  const [newOrgData, setNewOrgData] = useState({
+    name: '',
+    inn: '',
+    address: '',
+    director: '',
+    contractDate: '',
+    contractNumber: ''
+  });
 
   const students = mockUsers.filter(u => u.role === 'student');
   const filteredStudents = students.filter(s => {
@@ -276,12 +284,91 @@ const AdminPanel = () => {
                               <SelectValue placeholder="Выберите организацию" />
                             </SelectTrigger>
                             <SelectContent>
+                              <SelectItem value="new">
+                                <div className="flex items-center gap-2">
+                                  <Icon name="Plus" size={16} className="text-indigo-600" />
+                                  <span className="font-medium text-indigo-600">Новая организация</span>
+                                </div>
+                              </SelectItem>
                               {mockOrganizations.map(org => (
                                 <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         </div>
+
+                        {selectedOrganization === 'new' && (
+                          <div className="space-y-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Icon name="Building2" size={18} className="text-indigo-600" />
+                              <h4 className="font-semibold text-indigo-900">Данные новой организации</h4>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="col-span-2">
+                                <Label className="text-sm">Название организации *</Label>
+                                <Input
+                                  placeholder="ООО 'Название'"
+                                  value={newOrgData.name}
+                                  onChange={(e) => setNewOrgData({...newOrgData, name: e.target.value})}
+                                />
+                              </div>
+                              
+                              <div>
+                                <Label className="text-sm">ИНН *</Label>
+                                <Input
+                                  placeholder="7701234567"
+                                  value={newOrgData.inn}
+                                  onChange={(e) => setNewOrgData({...newOrgData, inn: e.target.value})}
+                                  maxLength={12}
+                                />
+                              </div>
+                              
+                              <div>
+                                <Label className="text-sm">ФИО руководителя *</Label>
+                                <Input
+                                  placeholder="Иванов Иван Иванович"
+                                  value={newOrgData.director}
+                                  onChange={(e) => setNewOrgData({...newOrgData, director: e.target.value})}
+                                />
+                              </div>
+                              
+                              <div className="col-span-2">
+                                <Label className="text-sm">Адрес</Label>
+                                <Input
+                                  placeholder="г. Москва, ул. Примерная, д. 1"
+                                  value={newOrgData.address}
+                                  onChange={(e) => setNewOrgData({...newOrgData, address: e.target.value})}
+                                />
+                              </div>
+
+                              <div className="col-span-2 border-t border-indigo-300 pt-3 mt-2">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <Icon name="FileText" size={16} className="text-indigo-600" />
+                                  <h5 className="font-medium text-indigo-900 text-sm">Реквизиты договора</h5>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <Label className="text-sm">Дата договора</Label>
+                                    <Input
+                                      type="date"
+                                      value={newOrgData.contractDate}
+                                      onChange={(e) => setNewOrgData({...newOrgData, contractDate: e.target.value})}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="text-sm">Номер договора</Label>
+                                    <Input
+                                      placeholder="123/2024"
+                                      value={newOrgData.contractNumber}
+                                      onChange={(e) => setNewOrgData({...newOrgData, contractNumber: e.target.value})}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
@@ -361,7 +448,11 @@ const AdminPanel = () => {
 
                         <Button 
                           className="w-full" 
-                          disabled={!selectedOrganization || !uploadedFile}
+                          disabled={
+                            !uploadedFile || 
+                            !selectedOrganization || 
+                            (selectedOrganization === 'new' && (!newOrgData.name || !newOrgData.inn || !newOrgData.director))
+                          }
                         >
                           <Icon name="Upload" size={16} className="mr-2" />
                           Загрузить и создать заявку
