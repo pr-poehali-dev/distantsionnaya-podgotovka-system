@@ -16,7 +16,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
-import { mockUsers, mockCourses, mockAssignments, mockCertificates } from '@/data/mockData';
+import { Textarea } from '@/components/ui/textarea';
+import { mockUsers, mockCourses, mockAssignments, mockCertificates, mockOrganizations, mockTrainingRequests } from '@/data/mockData';
 import { useNavigate } from 'react-router-dom';
 
 const AdminPanel = () => {
@@ -156,8 +157,12 @@ const AdminPanel = () => {
           </Card>
         </div>
 
-        <Tabs defaultValue="students" className="space-y-6">
+        <Tabs defaultValue="requests" className="space-y-6">
           <TabsList>
+            <TabsTrigger value="requests">
+              <Icon name="Inbox" size={16} className="mr-2" />
+              Заявки от организаций
+            </TabsTrigger>
             <TabsTrigger value="students">
               <Icon name="Users" size={16} className="mr-2" />
               Студенты
@@ -175,6 +180,214 @@ const AdminPanel = () => {
               Документы
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="requests">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle>Заявки на обучение</CardTitle>
+                      <CardDescription>Обработка заявок от организаций на групповое обучение</CardDescription>
+                    </div>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button>
+                          <Icon name="Plus" size={16} className="mr-2" />
+                          Новая заявка
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Создать заявку на обучение</DialogTitle>
+                          <DialogDescription>Добавьте заявку от организации с группой слушателей</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label>Организация</Label>
+                            <Select>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Выберите организацию" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {mockOrganizations.map(org => (
+                                  <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label>Курс подготовки</Label>
+                            <Select>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Выберите курс" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {mockCourses.map(c => (
+                                  <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label>Список слушателей (ФИО, должность через запятую)</Label>
+                            <Textarea 
+                              placeholder="Иванов Иван Иванович, Инженер&#10;Петров Петр Петрович, Мастер"
+                              rows={6}
+                            />
+                          </div>
+                          <Button className="w-full">Создать заявку</Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </CardHeader>
+              </Card>
+
+              {mockTrainingRequests.map((request) => {
+                const org = mockOrganizations.find(o => o.id === request.organizationId);
+                const course = mockCourses.find(c => c.id === request.courseId);
+                const completedCount = request.students.filter(s => s.studentId).length;
+                
+                return (
+                  <Card key={request.id} className="border-l-4" style={{
+                    borderLeftColor: 
+                      request.status === 'completed' ? '#10b981' :
+                      request.status === 'in_progress' ? '#3b82f6' :
+                      request.status === 'approved' ? '#f59e0b' :
+                      '#6b7280'
+                  }}>
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <CardTitle className="text-xl">{org?.name}</CardTitle>
+                            <Badge variant={
+                              request.status === 'completed' ? 'default' :
+                              request.status === 'in_progress' ? 'secondary' :
+                              'outline'
+                            }>
+                              {request.status === 'completed' ? 'Завершено' :
+                               request.status === 'in_progress' ? 'В процессе' :
+                               request.status === 'approved' ? 'Одобрено' :
+                               'Новая'}
+                            </Badge>
+                          </div>
+                          <CardDescription className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Icon name="BookOpen" size={14} />
+                              <span>{course?.title}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Icon name="Calendar" size={14} />
+                              <span>Заявка от {new Date(request.requestDate).toLocaleDateString('ru')}</span>
+                            </div>
+                            {request.completedAt && (
+                              <div className="flex items-center gap-2 text-green-600">
+                                <Icon name="CheckCircle2" size={14} />
+                                <span>Завершено {new Date(request.completedAt).toLocaleDateString('ru')}</span>
+                              </div>
+                            )}
+                          </CardDescription>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-muted-foreground mb-1">Слушателей</div>
+                          <div className="text-2xl font-bold text-indigo-600">{request.students.length}</div>
+                          {request.status === 'in_progress' && (
+                            <div className="text-sm text-muted-foreground mt-1">
+                              Готовы: {completedCount} из {request.students.length}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-semibold">Список группы:</h4>
+                          {request.status === 'pending' && (
+                            <Button size="sm">
+                              <Icon name="Check" size={14} className="mr-1" />
+                              Одобрить заявку
+                            </Button>
+                          )}
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>ФИО</TableHead>
+                              <TableHead>Должность</TableHead>
+                              <TableHead>Email</TableHead>
+                              <TableHead>Статус</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {request.students.map((student) => (
+                              <TableRow key={student.id}>
+                                <TableCell className="font-medium">{student.name}</TableCell>
+                                <TableCell>{student.position}</TableCell>
+                                <TableCell className="text-muted-foreground">{student.email || '—'}</TableCell>
+                                <TableCell>
+                                  {student.studentId ? (
+                                    <Badge className="bg-green-100 text-green-700">Обучается</Badge>
+                                  ) : (
+                                    <Badge variant="outline">Не назначен</Badge>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+
+                        <div className="flex gap-2 pt-4 border-t">
+                          {request.status === 'completed' ? (
+                            <>
+                              <Button className="flex-1" variant="default">
+                                <Icon name="FileText" size={16} className="mr-2" />
+                                Сформировать отчет для организации
+                              </Button>
+                              <Button className="flex-1" variant="default">
+                                <Icon name="Award" size={16} className="mr-2" />
+                                Отправить все удостоверения
+                              </Button>
+                              <Button variant="outline">
+                                <Icon name="Download" size={16} className="mr-2" />
+                                Скачать архив
+                              </Button>
+                            </>
+                          ) : request.status === 'in_progress' ? (
+                            <>
+                              <Button className="flex-1" variant="outline">
+                                <Icon name="Eye" size={16} className="mr-2" />
+                                Просмотр прогресса группы
+                              </Button>
+                              <Button variant="outline">
+                                <Icon name="Mail" size={16} className="mr-2" />
+                                Напомнить студентам
+                              </Button>
+                            </>
+                          ) : request.status === 'approved' ? (
+                            <Button className="flex-1">
+                              <Icon name="UserPlus" size={16} className="mr-2" />
+                              Создать аккаунты и назначить курс
+                            </Button>
+                          ) : null}
+                        </div>
+
+                        <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg text-sm">
+                          <Icon name="Info" size={16} className="text-blue-600 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-blue-900">Контактное лицо:</p>
+                            <p className="text-blue-700">{org?.contactPerson} — {org?.contactEmail}, {org?.contactPhone}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
 
           <TabsContent value="students">
             <Card>

@@ -5,6 +5,37 @@ export interface User {
   role: 'admin' | 'student';
   createdAt: string;
   avatar?: string;
+  position?: string;
+  organizationId?: string;
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  inn: string;
+  contactPerson: string;
+  contactEmail: string;
+  contactPhone: string;
+  address: string;
+}
+
+export interface TrainingRequest {
+  id: string;
+  organizationId: string;
+  courseId: string;
+  requestDate: string;
+  status: 'pending' | 'approved' | 'in_progress' | 'completed';
+  students: RequestStudent[];
+  completedAt?: string;
+}
+
+export interface RequestStudent {
+  id: string;
+  requestId: string;
+  name: string;
+  position: string;
+  email?: string;
+  studentId?: string;
 }
 
 export interface Course {
@@ -319,6 +350,87 @@ export const mockTestResults: TestResult[] = [
     selectedAnswer: 0,
     isCorrect: true,
     attemptedAt: '2024-03-15T10:32:00',
+  },
+];
+
+export const mockOrganizations: Organization[] = [
+  {
+    id: 'org-1',
+    name: 'ООО "Стройтехнология"',
+    inn: '7701234567',
+    contactPerson: 'Смирнов Алексей Петрович',
+    contactEmail: 'smirnov@stroyteh.ru',
+    contactPhone: '+7 495 123-45-67',
+    address: 'г. Москва, ул. Строителей, д. 15',
+  },
+  {
+    id: 'org-2',
+    name: 'АО "ЭнергоМаш"',
+    inn: '7702345678',
+    contactPerson: 'Кузнецова Ольга Ивановна',
+    contactEmail: 'kuznetsova@energomash.ru',
+    contactPhone: '+7 495 234-56-78',
+    address: 'г. Москва, пр-т Энергетиков, д. 42',
+  },
+  {
+    id: 'org-3',
+    name: 'ПАО "МетТрейд"',
+    inn: '7703456789',
+    contactPerson: 'Волков Дмитрий Сергеевич',
+    contactEmail: 'volkov@mettrade.ru',
+    contactPhone: '+7 495 345-67-89',
+    address: 'г. Москва, ул. Металлургов, д. 8',
+  },
+];
+
+export const mockTrainingRequests: TrainingRequest[] = [
+  {
+    id: 'req-1',
+    organizationId: 'org-1',
+    courseId: 'course-1',
+    requestDate: '2024-03-01',
+    status: 'completed',
+    completedAt: '2024-03-25',
+    students: [
+      { id: 'rs-1', requestId: 'req-1', name: 'Иванов Петр Сергеевич', position: 'Инженер', email: 'ivanov@stroyteh.ru', studentId: 'student-1' },
+      { id: 'rs-2', requestId: 'req-1', name: 'Сидоров Иван Петрович', position: 'Мастер участка', email: 'sidorov@stroyteh.ru', studentId: 'student-3' },
+    ],
+  },
+  {
+    id: 'req-2',
+    organizationId: 'org-2',
+    courseId: 'course-3',
+    requestDate: '2024-03-10',
+    status: 'in_progress',
+    students: [
+      { id: 'rs-3', requestId: 'req-2', name: 'Петрова Анна Владимировна', position: 'Электрик', email: 'petrova@energomash.ru', studentId: 'student-2' },
+      { id: 'rs-4', requestId: 'req-2', name: 'Николаев Сергей Иванович', position: 'Электромонтер', email: 'nikolaev@energomash.ru' },
+      { id: 'rs-5', requestId: 'req-2', name: 'Федоров Алексей Дмитриевич', position: 'Начальник смены', email: 'fedorov@energomash.ru' },
+    ],
+  },
+  {
+    id: 'req-3',
+    organizationId: 'org-3',
+    courseId: 'course-2',
+    requestDate: '2024-03-15',
+    status: 'approved',
+    students: [
+      { id: 'rs-6', requestId: 'req-3', name: 'Морозов Игорь Александрович', position: 'Главный инженер', email: 'morozov@mettrade.ru' },
+      { id: 'rs-7', requestId: 'req-3', name: 'Соколова Елена Петровна', position: 'Инженер по ОТ', email: 'sokolova@mettrade.ru' },
+    ],
+  },
+  {
+    id: 'req-4',
+    organizationId: 'org-1',
+    courseId: 'course-4',
+    requestDate: '2024-03-20',
+    status: 'pending',
+    students: [
+      { id: 'rs-8', requestId: 'req-4', name: 'Павлов Михаил Сергеевич', position: 'Директор по производству', email: 'pavlov@stroyteh.ru' },
+      { id: 'rs-9', requestId: 'req-4', name: 'Козлов Андрей Владимирович', position: 'Заместитель директора', email: 'kozlov@stroyteh.ru' },
+      { id: 'rs-10', requestId: 'req-4', name: 'Новиков Денис Игоревич', position: 'Начальник цеха', email: 'novikov@stroyteh.ru' },
+      { id: 'rs-11', requestId: 'req-4', name: 'Лебедев Роман Петрович', position: 'Мастер смены', email: 'lebedev@stroyteh.ru' },
+    ],
   },
 ];
 
