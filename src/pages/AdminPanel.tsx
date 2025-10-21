@@ -25,6 +25,7 @@ const AdminPanel = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
   const [copiedLogin, setCopiedLogin] = useState<string | null>(null);
+  const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
 
   const students = mockUsers.filter(u => u.role === 'student');
   const filteredStudents = students.filter(s => 
@@ -337,40 +338,56 @@ const AdminPanel = () => {
                     <CardContent>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-semibold">Список группы:</h4>
-                          {request.status === 'pending' && (
-                            <Button size="sm">
-                              <Icon name="Check" size={14} className="mr-1" />
-                              Одобрить заявку
+                          <div className="flex items-center gap-3">
+                            <h4 className="font-semibold">Список группы</h4>
+                            <Badge variant="secondary">{request.students.length} чел.</Badge>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => setExpandedRequest(expandedRequest === request.id ? null : request.id)}
+                            >
+                              <Icon name={expandedRequest === request.id ? "ChevronUp" : "ChevronDown"} size={14} className="mr-1" />
+                              {expandedRequest === request.id ? "Скрыть список" : "Показать список"}
                             </Button>
-                          )}
+                            {request.status === 'pending' && (
+                              <Button size="sm">
+                                <Icon name="Check" size={14} className="mr-1" />
+                                Одобрить заявку
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>ФИО</TableHead>
-                              <TableHead>Должность</TableHead>
-                              <TableHead>Email</TableHead>
-                              <TableHead>Статус</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {request.students.map((student) => (
-                              <TableRow key={student.id}>
-                                <TableCell className="font-medium">{student.name}</TableCell>
-                                <TableCell>{student.position}</TableCell>
-                                <TableCell className="text-muted-foreground">{student.email || '—'}</TableCell>
-                                <TableCell>
-                                  {student.studentId ? (
-                                    <Badge className="bg-green-100 text-green-700">Обучается</Badge>
-                                  ) : (
-                                    <Badge variant="outline">Не назначен</Badge>
-                                  )}
-                                </TableCell>
+                        
+                        {expandedRequest === request.id && (
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>ФИО</TableHead>
+                                <TableHead>Должность</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Статус</TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {request.students.map((student) => (
+                                <TableRow key={student.id}>
+                                  <TableCell className="font-medium">{student.name}</TableCell>
+                                  <TableCell>{student.position}</TableCell>
+                                  <TableCell className="text-muted-foreground">{student.email || '—'}</TableCell>
+                                  <TableCell>
+                                    {student.studentId ? (
+                                      <Badge className="bg-green-100 text-green-700">Обучается</Badge>
+                                    ) : (
+                                      <Badge variant="outline">Не назначен</Badge>
+                                    )}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        )}
 
                         <div className="flex gap-2 pt-4 border-t">
                           {request.status === 'completed' ? (
