@@ -198,21 +198,17 @@ const AdminPanel = () => {
 
         <Tabs defaultValue="requests" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="requests">
-              <Icon name="Inbox" size={16} className="mr-2" />
-              Заявки от организаций
+            <TabsTrigger value="requests" title="Заявки от организаций">
+              <Icon name="Inbox" size={20} />
             </TabsTrigger>
-            <TabsTrigger value="students">
-              <Icon name="Users" size={16} className="mr-2" />
-              Студенты
+            <TabsTrigger value="students" title="Студенты">
+              <Icon name="Users" size={20} />
             </TabsTrigger>
-            <TabsTrigger value="courses">
-              <Icon name="BookOpen" size={16} className="mr-2" />
-              Курсы
+            <TabsTrigger value="courses" title="Курсы">
+              <Icon name="BookOpen" size={20} />
             </TabsTrigger>
-            <TabsTrigger value="certificates">
-              <Icon name="Award" size={16} className="mr-2" />
-              Документы
+            <TabsTrigger value="certificates" title="Документы">
+              <Icon name="Award" size={20} />
             </TabsTrigger>
           </TabsList>
 
@@ -290,15 +286,15 @@ const AdminPanel = () => {
                 </div>
                 <Tabs defaultValue="active" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="active">
-                      Активные заявки
-                      <Badge variant="secondary" className="ml-2">
+                    <TabsTrigger value="active" title="Активные заявки">
+                      <Icon name="Clock" size={18} className="mr-2" />
+                      <Badge variant="secondary">
                         {mockTrainingRequests.filter(r => r.status !== 'completed').length}
                       </Badge>
                     </TabsTrigger>
-                    <TabsTrigger value="archive">
-                      Архив
-                      <Badge variant="secondary" className="ml-2">
+                    <TabsTrigger value="archive" title="Архив">
+                      <Icon name="Archive" size={18} className="mr-2" />
+                      <Badge variant="secondary">
                         {mockTrainingRequests.filter(r => r.status === 'completed').length}
                       </Badge>
                     </TabsTrigger>

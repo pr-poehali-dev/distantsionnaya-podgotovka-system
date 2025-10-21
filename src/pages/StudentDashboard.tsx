@@ -212,17 +212,14 @@ const StudentDashboard = () => {
 
             <Tabs defaultValue="test" className="space-y-6">
               <TabsList>
-                <TabsTrigger value="test">
-                  <Icon name="ClipboardCheck" size={16} className="mr-2" />
-                  Тестирование
+                <TabsTrigger value="test" title="Тестирование">
+                  <Icon name="ClipboardCheck" size={20} />
                 </TabsTrigger>
-                <TabsTrigger value="materials">
-                  <Icon name="FileText" size={16} className="mr-2" />
-                  Материалы
+                <TabsTrigger value="materials" title="Материалы">
+                  <Icon name="FileText" size={20} />
                 </TabsTrigger>
-                <TabsTrigger value="search">
-                  <Icon name="Search" size={16} className="mr-2" />
-                  Поиск ответов
+                <TabsTrigger value="search" title="Поиск ответов">
+                  <Icon name="Search" size={20} />
                 </TabsTrigger>
               </TabsList>
 
