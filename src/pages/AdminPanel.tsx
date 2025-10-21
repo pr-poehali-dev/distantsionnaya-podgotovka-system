@@ -98,10 +98,6 @@ const AdminPanel = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')}>
-                <Icon name="User" size={20} className="mr-2" />
-                Режим студента
-              </Button>
               <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
                 <Icon name="LogOut" size={20} className="mr-2" />
                 Выйти

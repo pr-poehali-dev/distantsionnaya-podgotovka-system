@@ -90,10 +90,6 @@ const StudentDashboard = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
-                <Icon name="Settings" size={20} className="mr-2" />
-                Админ-панель
-              </Button>
               <Button variant="ghost" size="sm">
                 <Icon name="Bell" size={20} />
               </Button>
