@@ -197,18 +197,34 @@ const AdminPanel = () => {
         </div>
 
         <Tabs defaultValue="requests" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="requests" title="Заявки от организаций">
-              <Icon name="Inbox" size={20} />
+          <TabsList className="h-auto bg-transparent gap-2">
+            <TabsTrigger 
+              value="requests" 
+              className="flex-col h-auto py-4 px-6 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+            >
+              <Icon name="Inbox" size={24} className="mb-2" />
+              <span className="text-xs font-medium">Заявки от организаций</span>
             </TabsTrigger>
-            <TabsTrigger value="students" title="Студенты">
-              <Icon name="Users" size={20} />
+            <TabsTrigger 
+              value="students"
+              className="flex-col h-auto py-4 px-6 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+            >
+              <Icon name="Users" size={24} className="mb-2" />
+              <span className="text-xs font-medium">Студенты</span>
             </TabsTrigger>
-            <TabsTrigger value="courses" title="Курсы">
-              <Icon name="BookOpen" size={20} />
+            <TabsTrigger 
+              value="courses"
+              className="flex-col h-auto py-4 px-6 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+            >
+              <Icon name="BookOpen" size={24} className="mb-2" />
+              <span className="text-xs font-medium">Курсы</span>
             </TabsTrigger>
-            <TabsTrigger value="certificates" title="Документы">
-              <Icon name="Award" size={20} />
+            <TabsTrigger 
+              value="certificates"
+              className="flex-col h-auto py-4 px-6 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+            >
+              <Icon name="Award" size={24} className="mb-2" />
+              <span className="text-xs font-medium">Документы</span>
             </TabsTrigger>
           </TabsList>
 

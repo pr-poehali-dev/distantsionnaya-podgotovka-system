@@ -211,15 +211,27 @@ const StudentDashboard = () => {
             </div>
 
             <Tabs defaultValue="test" className="space-y-6">
-              <TabsList>
-                <TabsTrigger value="test" title="Тестирование">
-                  <Icon name="ClipboardCheck" size={20} />
+              <TabsList className="h-auto bg-transparent gap-2">
+                <TabsTrigger 
+                  value="test"
+                  className="flex-col h-auto py-4 px-6 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+                >
+                  <Icon name="ClipboardCheck" size={24} className="mb-2" />
+                  <span className="text-xs font-medium">Тестирование</span>
                 </TabsTrigger>
-                <TabsTrigger value="materials" title="Материалы">
-                  <Icon name="FileText" size={20} />
+                <TabsTrigger 
+                  value="materials"
+                  className="flex-col h-auto py-4 px-6 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+                >
+                  <Icon name="FileText" size={24} className="mb-2" />
+                  <span className="text-xs font-medium">Материалы</span>
                 </TabsTrigger>
-                <TabsTrigger value="search" title="Поиск ответов">
-                  <Icon name="Search" size={20} />
+                <TabsTrigger 
+                  value="search"
+                  className="flex-col h-auto py-4 px-6 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+                >
+                  <Icon name="Search" size={24} className="mb-2" />
+                  <span className="text-xs font-medium">Поиск ответов</span>
                 </TabsTrigger>
               </TabsList>
 
