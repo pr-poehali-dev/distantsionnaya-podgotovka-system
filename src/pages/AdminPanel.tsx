@@ -579,90 +579,115 @@ const AdminPanel = () => {
                                           </TableCell>
                                         </TableRow>
                                       ) : (
-                                        assignments.map((assignment) => (
-                                          <TableRow key={assignment.id} className="bg-white">
-                                            <TableCell className="font-medium">
-                                              {assignment.course?.title}
-                                            </TableCell>
-                                            <TableCell>
-                                              <Input 
-                                                type="date" 
-                                                defaultValue={assignment.assignedAt.split('T')[0]}
-                                                className="w-40"
-                                                onClick={(e) => e.stopPropagation()}
-                                              />
-                                            </TableCell>
-                                            <TableCell>
-                                              <Input 
-                                                type="date" 
-                                                defaultValue={assignment.completedAt?.split('T')[0] || ''}
-                                                className="w-40"
-                                                onClick={(e) => e.stopPropagation()}
-                                              />
-                                            </TableCell>
-                                            <TableCell>
-                                              <Badge 
-                                                variant={assignment.status === 'completed' ? 'default' : 'secondary'}
-                                                className={
-                                                  assignment.status === 'completed' 
-                                                    ? 'bg-green-100 text-green-700 border-green-300' 
-                                                    : assignment.status === 'in_progress'
-                                                    ? 'bg-pink-100 text-pink-700 border-pink-300'
-                                                    : 'bg-gray-100 text-gray-700 border-gray-300'
-                                                }
-                                              >
-                                                {assignment.status === 'completed' ? 'Завершено' : assignment.status === 'in_progress' ? 'В процессе' : 'Назначен'}
-                                              </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                              <div className="flex items-center gap-3 min-w-[140px]">
-                                                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                                  <div
-                                                    className={`h-full rounded-full transition-all ${
-                                                      assignment.progress === 100 
-                                                        ? 'bg-purple-600' 
-                                                        : assignment.progress >= 50
-                                                        ? 'bg-indigo-600'
-                                                        : 'bg-pink-600'
-                                                    }`}
-                                                    style={{ width: `${assignment.progress}%` }}
-                                                  />
+                                        assignments.map((assignment) => {
+                                          const calculateEndDate = (startDate: string | undefined) => {
+                                            if (!startDate) return '';
+                                            const start = new Date(startDate);
+                                            const end = new Date(start);
+                                            end.setDate(end.getDate() + 60);
+                                            return end.toISOString().split('T')[0];
+                                          };
+
+                                          return (
+                                            <TableRow key={assignment.id} className="bg-white">
+                                              <TableCell className="font-medium">
+                                                {assignment.course?.title}
+                                              </TableCell>
+                                              <TableCell>
+                                                <Input 
+                                                  type="date" 
+                                                  defaultValue={assignment.activatedAt?.split('T')[0] || ''}
+                                                  className="w-40"
+                                                  onClick={(e) => e.stopPropagation()}
+                                                  disabled={assignment.status === 'draft'}
+                                                  placeholder={assignment.status === 'draft' ? 'Не активирован' : ''}
+                                                />
+                                              </TableCell>
+                                              <TableCell>
+                                                <Input 
+                                                  type="text"
+                                                  value={assignment.expiresAt ? new Date(assignment.expiresAt).toLocaleDateString('ru-RU') : '—'}
+                                                  className="w-40"
+                                                  disabled
+                                                  placeholder="ДД.ММ.ГГГГ"
+                                                />
+                                              </TableCell>
+                                              <TableCell>
+                                                <Badge 
+                                                  variant="outline"
+                                                  className={
+                                                    assignment.status === 'completed' 
+                                                      ? 'bg-green-100 text-green-700 border-green-300' 
+                                                      : assignment.status === 'active'
+                                                      ? 'bg-pink-100 text-pink-700 border-pink-300'
+                                                      : 'bg-gray-100 text-gray-700 border-gray-300'
+                                                  }
+                                                >
+                                                  {assignment.status === 'completed' ? 'Завершено' : assignment.status === 'active' ? 'Активно' : 'Черновик'}
+                                                </Badge>
+                                              </TableCell>
+                                              <TableCell>
+                                                <div className="flex items-center gap-3 min-w-[140px]">
+                                                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                    <div
+                                                      className={`h-full rounded-full transition-all ${
+                                                        assignment.progress === 100 
+                                                          ? 'bg-purple-600' 
+                                                          : assignment.progress >= 50
+                                                          ? 'bg-indigo-600'
+                                                          : 'bg-pink-600'
+                                                      }`}
+                                                      style={{ width: `${assignment.progress}%` }}
+                                                    />
+                                                  </div>
+                                                  <span className="text-sm font-semibold min-w-[45px] text-right">
+                                                    {assignment.progress}%
+                                                  </span>
                                                 </div>
-                                                <span className="text-sm font-semibold min-w-[45px] text-right">
-                                                  {assignment.progress}%
-                                                </span>
-                                              </div>
-                                            </TableCell>
-                                            <TableCell onClick={(e) => e.stopPropagation()}>
-                                              <div className="flex gap-1">
-                                                <Button 
-                                                  size="sm" 
-                                                  variant="ghost" 
-                                                  className="h-8 w-8 p-0"
-                                                  title="Редактировать сроки"
-                                                >
-                                                  <Icon name="Calendar" size={16} className="text-blue-600" />
-                                                </Button>
-                                                <Button 
-                                                  size="sm" 
-                                                  variant="ghost" 
-                                                  className="h-8 w-8 p-0"
-                                                  title="Подтвердить"
-                                                >
-                                                  <Icon name="CheckCircle2" size={16} className="text-green-600" />
-                                                </Button>
-                                                <Button 
-                                                  size="sm" 
-                                                  variant="ghost" 
-                                                  className="h-8 w-8 p-0"
-                                                  title="Удалить назначение"
-                                                >
-                                                  <Icon name="Trash2" size={16} className="text-red-600" />
-                                                </Button>
-                                              </div>
-                                            </TableCell>
-                                          </TableRow>
-                                        ))
+                                              </TableCell>
+                                              <TableCell onClick={(e) => e.stopPropagation()}>
+                                                <div className="flex gap-1">
+                                                  {assignment.status === 'draft' && (
+                                                    <Button 
+                                                      size="sm" 
+                                                      variant="ghost" 
+                                                      className="h-8 w-8 p-0"
+                                                      title="Активировать подписку"
+                                                    >
+                                                      <Icon name="Play" size={16} className="text-green-600" />
+                                                    </Button>
+                                                  )}
+                                                  {assignment.status === 'active' && (
+                                                    <Button 
+                                                      size="sm" 
+                                                      variant="ghost" 
+                                                      className="h-8 w-8 p-0"
+                                                      title="Продлить (+1 подписка, +60 дней)"
+                                                    >
+                                                      <Icon name="RefreshCw" size={16} className="text-blue-600" />
+                                                    </Button>
+                                                  )}
+                                                  <Button 
+                                                    size="sm" 
+                                                    variant="ghost" 
+                                                    className="h-8 w-8 p-0"
+                                                    title="Завершить обучение"
+                                                  >
+                                                    <Icon name="CheckCircle2" size={16} className="text-green-600" />
+                                                  </Button>
+                                                  <Button 
+                                                    size="sm" 
+                                                    variant="ghost" 
+                                                    className="h-8 w-8 p-0"
+                                                    title="Удалить назначение"
+                                                  >
+                                                    <Icon name="Trash2" size={16} className="text-red-600" />
+                                                  </Button>
+                                                </div>
+                                              </TableCell>
+                                            </TableRow>
+                                          );
+                                        })
                                       )}
                                     </TableBody>
                                   </Table>

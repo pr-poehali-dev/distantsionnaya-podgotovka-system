@@ -54,9 +54,12 @@ export interface CourseAssignment {
   studentId: string;
   courseId: string;
   assignedAt: string;
-  dueDate?: string;
-  status: 'assigned' | 'in_progress' | 'completed';
+  activatedAt?: string;
+  expiresAt?: string;
+  completedAt?: string;
+  status: 'draft' | 'active' | 'completed';
   progress: number;
+  subscriptionsUsed: number;
 }
 
 export interface TestQuestion {
@@ -176,45 +179,54 @@ export const mockAssignments: CourseAssignment[] = [
     studentId: 'student-1',
     courseId: 'course-1',
     assignedAt: '2024-03-01',
-    dueDate: '2024-04-01',
-    status: 'in_progress',
+    activatedAt: '2024-03-01',
+    expiresAt: '2024-04-30',
+    status: 'active',
     progress: 65,
+    subscriptionsUsed: 1,
   },
   {
     id: 'assign-2',
     studentId: 'student-1',
     courseId: 'course-2',
     assignedAt: '2024-03-05',
-    dueDate: '2024-04-05',
+    activatedAt: '2024-03-05',
+    expiresAt: '2024-05-04',
+    completedAt: '2024-04-05',
     status: 'completed',
     progress: 100,
+    subscriptionsUsed: 1,
   },
   {
     id: 'assign-3',
     studentId: 'student-2',
     courseId: 'course-1',
     assignedAt: '2024-03-10',
-    dueDate: '2024-04-10',
-    status: 'in_progress',
+    activatedAt: '2024-03-10',
+    expiresAt: '2024-05-09',
+    status: 'active',
     progress: 45,
+    subscriptionsUsed: 1,
   },
   {
     id: 'assign-4',
     studentId: 'student-2',
     courseId: 'course-3',
     assignedAt: '2024-03-12',
-    dueDate: '2024-04-12',
-    status: 'assigned',
+    status: 'draft',
     progress: 0,
+    subscriptionsUsed: 0,
   },
   {
     id: 'assign-5',
     studentId: 'student-3',
     courseId: 'course-4',
     assignedAt: '2024-03-15',
-    dueDate: '2024-05-15',
-    status: 'in_progress',
+    activatedAt: '2024-03-15',
+    expiresAt: '2024-05-14',
+    status: 'active',
     progress: 30,
+    subscriptionsUsed: 1,
   },
 ];
 
