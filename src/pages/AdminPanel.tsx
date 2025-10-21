@@ -216,69 +216,84 @@ const AdminPanel = () => {
           </TabsList>
 
           <TabsContent value="requests">
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <CardTitle>Заявки на обучение</CardTitle>
-                      <CardDescription>Обработка заявок от организаций на групповое обучение</CardDescription>
-                    </div>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button>
-                          <Icon name="Plus" size={16} className="mr-2" />
-                          Новая заявка
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>Создать заявку на обучение</DialogTitle>
-                          <DialogDescription>Добавьте заявку от организации с группой слушателей</DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <Label>Организация</Label>
-                            <Select>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Выберите организацию" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {mockOrganizations.map(org => (
-                                  <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <Label>Курс подготовки</Label>
-                            <Select>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Выберите курс" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {mockCourses.map(c => (
-                                  <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <Label>Список слушателей (ФИО, должность через запятую)</Label>
-                            <Textarea 
-                              placeholder="Иванов Иван Иванович, Инженер&#10;Петров Петр Петрович, Мастер"
-                              rows={6}
-                            />
-                          </div>
-                          <Button className="w-full">Создать заявку</Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Заявки на обучение</CardTitle>
+                    <CardDescription>Обработка заявок от организаций на групповое обучение</CardDescription>
                   </div>
-                </CardHeader>
-              </Card>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Icon name="Plus" size={16} className="mr-2" />
+                        Новая заявка
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Создать заявку на обучение</DialogTitle>
+                        <DialogDescription>Добавьте заявку от организации с группой слушателей</DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label>Организация</Label>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите организацию" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {mockOrganizations.map(org => (
+                                <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>Курс подготовки</Label>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите курс" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {mockCourses.map(c => (
+                                <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label>Список слушателей (ФИО, должность через запятую)</Label>
+                          <Textarea 
+                            placeholder="Иванов Иван Иванович, Инженер&#10;Петров Петр Петрович, Мастер"
+                            rows={6}
+                          />
+                        </div>
+                        <Button className="w-full">Создать заявку</Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="active" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="active">
+                      Активные заявки
+                      <Badge variant="secondary" className="ml-2">
+                        {mockTrainingRequests.filter(r => r.status !== 'completed').length}
+                      </Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="archive">
+                      Архив
+                      <Badge variant="secondary" className="ml-2">
+                        {mockTrainingRequests.filter(r => r.status === 'completed').length}
+                      </Badge>
+                    </TabsTrigger>
+                  </TabsList>
 
-              {mockTrainingRequests.map((request) => {
+                  <TabsContent value="active" className="space-y-6 mt-6">
+                    {mockTrainingRequests.filter(r => r.status !== 'completed').map((request) => {
                 const org = mockOrganizations.find(o => o.id === request.organizationId);
                 const course = mockCourses.find(c => c.id === request.courseId);
                 const completedCount = request.students.filter(s => s.studentId).length;
@@ -436,7 +451,125 @@ const AdminPanel = () => {
                   </Card>
                 );
               })}
-            </div>
+                  </TabsContent>
+
+                  <TabsContent value="archive" className="space-y-6 mt-6">
+                    {mockTrainingRequests.filter(r => r.status === 'completed').map((request) => {
+                const org = mockOrganizations.find(o => o.id === request.organizationId);
+                const course = mockCourses.find(c => c.id === request.courseId);
+                const completedCount = request.students.filter(s => s.studentId).length;
+                
+                return (
+                  <Card key={request.id} className="border-l-4" style={{
+                    borderLeftColor: '#10b981'
+                  }}>
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <CardTitle className="text-xl">{org?.name}</CardTitle>
+                            <Badge variant="default">Завершено</Badge>
+                          </div>
+                          <CardDescription className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Icon name="BookOpen" size={14} />
+                              <span>{course?.title}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Icon name="Calendar" size={14} />
+                              <span>Заявка от {new Date(request.requestDate).toLocaleDateString('ru')}</span>
+                            </div>
+                            {request.completedAt && (
+                              <div className="flex items-center gap-2 text-green-600">
+                                <Icon name="CheckCircle2" size={14} />
+                                <span>Завершено {new Date(request.completedAt).toLocaleDateString('ru')}</span>
+                              </div>
+                            )}
+                          </CardDescription>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm text-muted-foreground mb-1">Слушателей</div>
+                          <div className="text-2xl font-bold text-green-600">{request.students.length}</div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <h4 className="font-semibold">Список группы</h4>
+                            <Badge variant="secondary">{request.students.length} чел.</Badge>
+                          </div>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => setExpandedRequest(expandedRequest === request.id ? null : request.id)}
+                          >
+                            <Icon name={expandedRequest === request.id ? "ChevronUp" : "ChevronDown"} size={14} className="mr-1" />
+                            {expandedRequest === request.id ? "Скрыть список" : "Показать список"}
+                          </Button>
+                        </div>
+                        
+                        {expandedRequest === request.id && (
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>ФИО</TableHead>
+                                <TableHead>Должность</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Статус</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {request.students.map((student) => (
+                                <TableRow key={student.id}>
+                                  <TableCell className="font-medium">{student.name}</TableCell>
+                                  <TableCell>{student.position}</TableCell>
+                                  <TableCell className="text-muted-foreground">{student.email || '—'}</TableCell>
+                                  <TableCell>
+                                    {student.studentId ? (
+                                      <Badge className="bg-green-100 text-green-700">Обучается</Badge>
+                                    ) : (
+                                      <Badge variant="outline">Не назначен</Badge>
+                                    )}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        )}
+
+                        <div className="flex gap-2 pt-4 border-t">
+                          <Button className="flex-1" variant="default">
+                            <Icon name="FileText" size={16} className="mr-2" />
+                            Сформировать отчет для организации
+                          </Button>
+                          <Button className="flex-1" variant="default">
+                            <Icon name="Award" size={16} className="mr-2" />
+                            Отправить все удостоверения
+                          </Button>
+                          <Button variant="outline">
+                            <Icon name="Download" size={16} className="mr-2" />
+                            Скачать архив
+                          </Button>
+                        </div>
+
+                        <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg text-sm">
+                          <Icon name="Info" size={16} className="text-blue-600 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-blue-900">Контактное лицо:</p>
+                            <p className="text-blue-700">{org?.contactPerson} — {org?.contactEmail}, {org?.contactPhone}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="students">
