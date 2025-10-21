@@ -34,8 +34,8 @@ const Login = () => {
               <Icon name="Shield" className="text-white" size={32} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">EduPlatform</h1>
-              <p className="text-gray-600">Система управления обучением</p>
+              <h1 className="text-3xl font-bold text-gray-900">ИСП</h1>
+              <p className="text-gray-600">Интеллектуальная система подготовки</p>
             </div>
           </div>
 

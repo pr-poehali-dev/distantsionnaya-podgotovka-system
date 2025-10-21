@@ -92,9 +92,9 @@ const AdminPanel = () => {
               </div>
               <div>
                 <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  EduPlatform
+                  ИСП
                 </span>
-                <p className="text-xs text-muted-foreground">Панель администратора</p>
+                <p className="text-xs text-muted-foreground">Интеллектуальная система подготовки</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
