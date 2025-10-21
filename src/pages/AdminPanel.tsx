@@ -56,6 +56,18 @@ const AdminPanel = () => {
     });
   };
 
+  const totalSubscriptions = 100;
+  const usedSubscriptions = mockAssignments.reduce((sum, a) => sum + a.subscriptionsUsed, 0);
+  const remainingSubscriptions = totalSubscriptions - usedSubscriptions;
+  
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const usedThisMonth = mockAssignments.filter(a => {
+    if (!a.activatedAt) return false;
+    const activatedDate = new Date(a.activatedAt);
+    return activatedDate.getMonth() === currentMonth && activatedDate.getFullYear() === currentYear;
+  }).reduce((sum, a) => sum + a.subscriptionsUsed, 0);
+
   const getCourseStats = (courseId: string) => {
     const assignments = mockAssignments.filter(a => a.courseId === courseId);
     const students = assignments.length;
@@ -107,49 +119,49 @@ const AdminPanel = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="animate-scale-in">
+          <Card className="animate-scale-in cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/subscriptions')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Всего студентов
+                Всего подписок
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-3xl font-bold text-indigo-600">{students.length}</div>
+                <div className="text-3xl font-bold text-indigo-600">{totalSubscriptions}</div>
                 <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                  <Icon name="Users" className="text-indigo-600" size={24} />
+                  <Icon name="Package" className="text-indigo-600" size={24} />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="animate-scale-in" style={{ animationDelay: '0.1s' }}>
+          <Card className="animate-scale-in cursor-pointer hover:shadow-lg transition-shadow" style={{ animationDelay: '0.1s' }} onClick={() => navigate('/subscriptions')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Активных курсов
+                Осталось подписок
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-3xl font-bold text-purple-600">{mockCourses.filter(c => c.status === 'active').length}</div>
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Icon name="BookOpen" className="text-purple-600" size={24} />
+                <div className="text-3xl font-bold text-green-600">{remainingSubscriptions}</div>
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <Icon name="CheckCircle2" className="text-green-600" size={24} />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
+          <Card className="animate-scale-in cursor-pointer hover:shadow-lg transition-shadow" style={{ animationDelay: '0.2s' }} onClick={() => navigate('/subscriptions')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Назначений
+                Списано в текущем месяце
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <div className="text-3xl font-bold text-pink-600">{mockAssignments.length}</div>
-                <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
-                  <Icon name="ClipboardList" className="text-pink-600" size={24} />
+                <div className="text-3xl font-bold text-orange-600">{usedThisMonth}</div>
+                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <Icon name="TrendingDown" className="text-orange-600" size={24} />
                 </div>
               </div>
             </CardContent>
@@ -157,15 +169,25 @@ const AdminPanel = () => {
 
           <Card className="animate-scale-in" style={{ animationDelay: '0.3s' }}>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Выдано документов
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
+                Подписки
+                <Button size="sm" variant="outline" onClick={() => navigate('/subscriptions')}>
+                  <Icon name="BarChart3" size={14} className="mr-1" />
+                  Статистика
+                </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-3xl font-bold text-amber-600">{mockCertificates.length}</div>
-                <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-                  <Icon name="Award" className="text-amber-600" size={24} />
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Использовано</span>
+                  <span className="font-semibold">{usedSubscriptions}</span>
+                </div>
+                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full transition-all"
+                    style={{ width: `${(usedSubscriptions / totalSubscriptions) * 100}%` }}
+                  />
                 </div>
               </div>
             </CardContent>
