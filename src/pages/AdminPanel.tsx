@@ -19,6 +19,7 @@ import Icon from '@/components/ui/icon';
 import { Textarea } from '@/components/ui/textarea';
 import { mockUsers, mockCourses, mockAssignments, mockCertificates, mockOrganizations, mockTrainingRequests } from '@/data/mockData';
 import { useNavigate } from 'react-router-dom';
+import { generateExcelTemplate } from '@/utils/excelTemplate';
 
 const AdminPanel = () => {
   const navigate = useNavigate();
@@ -376,12 +377,7 @@ const AdminPanel = () => {
                             <Button 
                               variant="outline" 
                               size="sm"
-                              onClick={() => {
-                                const link = document.createElement('a');
-                                link.href = '/template.xlsx';
-                                link.download = 'Шаблон_заявки.xlsx';
-                                link.click();
-                              }}
+                              onClick={generateExcelTemplate}
                             >
                               <Icon name="Download" size={14} className="mr-2" />
                               Скачать шаблон
