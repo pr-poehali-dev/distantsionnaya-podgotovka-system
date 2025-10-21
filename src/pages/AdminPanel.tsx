@@ -757,8 +757,8 @@ const AdminPanel = () => {
                               <input type="checkbox" className="rounded border-gray-300" />
                             </TableCell>
                             <TableCell className="font-medium">{student.name}</TableCell>
-                            <TableCell className="text-muted-foreground">{org?.name || 'Не указана'}</TableCell>
-                            <TableCell className="text-muted-foreground">{org?.name || 'Не указана'}</TableCell>
+                            <TableCell className="text-muted-foreground">{student.organization || 'Не указана'}</TableCell>
+                            <TableCell className="text-muted-foreground">{student.group || 'Не указана'}</TableCell>
                             <TableCell onClick={(e) => e.stopPropagation()}>
                               <div className="flex gap-1">
                                 <Button 
@@ -789,12 +789,12 @@ const AdminPanel = () => {
                             </TableCell>
                             <TableCell onClick={(e) => e.stopPropagation()}>
                               <div className="flex items-center gap-2">
-                                <code className="text-sm bg-muted px-2 py-1 rounded">{student.email.split('@')[0]}</code>
+                                <code className="text-sm bg-muted px-2 py-1 rounded">{student.login || student.email.split('@')[0]}</code>
                                 <Button
                                   size="sm"
                                   variant="ghost"
                                   className="h-6 w-6 p-0"
-                                  onClick={() => copyToClipboard(student.email.split('@')[0], student.id)}
+                                  onClick={() => copyToClipboard(student.login || student.email.split('@')[0], student.id)}
                                   title="Копировать логин"
                                 >
                                   <Icon 
@@ -805,7 +805,9 @@ const AdminPanel = () => {
                                 </Button>
                               </div>
                             </TableCell>
-                            <TableCell className="text-muted-foreground">••••••••</TableCell>
+                            <TableCell className="text-muted-foreground">
+                              <code className="text-sm">{student.password || '••••••••'}</code>
+                            </TableCell>
                             <TableCell onClick={(e) => e.stopPropagation()}>
                               <div className="flex items-center gap-2">
                                 <Button 

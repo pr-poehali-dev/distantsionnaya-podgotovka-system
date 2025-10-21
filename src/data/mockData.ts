@@ -7,6 +7,10 @@ export interface User {
   avatar?: string;
   position?: string;
   organizationId?: string;
+  organization?: string;
+  group?: string;
+  login?: string;
+  password?: string;
 }
 
 export interface Organization {
@@ -113,6 +117,10 @@ export const mockUsers: User[] = [
     name: 'Иванов Иван Иванович',
     role: 'student',
     createdAt: '2024-02-15',
+    organization: 'ООО "Стройтехнология"',
+    group: 'ОТ-2024-01',
+    login: 'ivanov_ii',
+    password: 'pass1234',
   },
   {
     id: 'student-2',
@@ -120,6 +128,10 @@ export const mockUsers: User[] = [
     name: 'Петрова Мария Сергеевна',
     role: 'student',
     createdAt: '2024-03-01',
+    organization: 'АО "ЭнергоМаш"',
+    group: 'ЭБ-2024-02',
+    login: 'petrova_ms',
+    password: 'pass5678',
   },
   {
     id: 'student-3',
@@ -127,6 +139,10 @@ export const mockUsers: User[] = [
     name: 'Сидоров Петр Александрович',
     role: 'student',
     createdAt: '2024-03-10',
+    organization: 'ООО "Стройтехнология"',
+    group: 'ОТ-2024-01',
+    login: 'sidorov_pa',
+    password: 'pass9012',
   },
 ];
 
