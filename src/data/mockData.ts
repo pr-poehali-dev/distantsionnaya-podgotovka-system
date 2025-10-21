@@ -11,6 +11,7 @@ export interface User {
   group?: string;
   login?: string;
   password?: string;
+  snils?: string;
 }
 
 export interface Organization {
@@ -40,6 +41,7 @@ export interface RequestStudent {
   email?: string;
   studentId?: string;
   courseIds: string[];
+  snils?: string;
 }
 
 export interface Course {
@@ -121,6 +123,7 @@ export const mockUsers: User[] = [
     group: 'ОТ-2024-01',
     login: 'ivanov_ii',
     password: 'pass1234',
+    snils: '123-456-789 00',
   },
   {
     id: 'student-2',
@@ -132,6 +135,7 @@ export const mockUsers: User[] = [
     group: 'ЭБ-2024-02',
     login: 'petrova_ms',
     password: 'pass5678',
+    snils: '234-567-890 11',
   },
   {
     id: 'student-3',
@@ -143,6 +147,7 @@ export const mockUsers: User[] = [
     group: 'ОТ-2024-01',
     login: 'sidorov_pa',
     password: 'pass9012',
+    snils: '345-678-901 22',
   },
 ];
 

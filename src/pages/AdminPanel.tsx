@@ -589,6 +589,7 @@ const AdminPanel = () => {
                                 <TableHead>ФИО</TableHead>
                                 <TableHead>Должность</TableHead>
                                 <TableHead>Email</TableHead>
+                                <TableHead>СНИЛС</TableHead>
                                 <TableHead>Курсы</TableHead>
                                 <TableHead>Статус</TableHead>
                               </TableRow>
@@ -601,6 +602,21 @@ const AdminPanel = () => {
                                     <TableCell className="font-medium">{student.name}</TableCell>
                                     <TableCell>{student.position}</TableCell>
                                     <TableCell className="text-muted-foreground">{student.email || '—'}</TableCell>
+                                    <TableCell>
+                                      <div className="flex items-center gap-2">
+                                        {student.snils ? (
+                                          <>
+                                            <Icon name="CheckCircle2" size={14} className="text-green-600" />
+                                            <span className="text-green-600 text-sm">Указан</span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Icon name="AlertCircle" size={14} className="text-orange-500" />
+                                            <span className="text-orange-500 text-sm">Не указан</span>
+                                          </>
+                                        )}
+                                      </div>
+                                    </TableCell>
                                     <TableCell>
                                       <div className="flex flex-wrap gap-1">
                                         {studentCourses.map((course) => (
@@ -750,6 +766,7 @@ const AdminPanel = () => {
                                 <TableHead>ФИО</TableHead>
                                 <TableHead>Должность</TableHead>
                                 <TableHead>Email</TableHead>
+                                <TableHead>СНИЛС</TableHead>
                                 <TableHead>Курсы</TableHead>
                                 <TableHead>Статус</TableHead>
                               </TableRow>
@@ -762,6 +779,21 @@ const AdminPanel = () => {
                                     <TableCell className="font-medium">{student.name}</TableCell>
                                     <TableCell>{student.position}</TableCell>
                                     <TableCell className="text-muted-foreground">{student.email || '—'}</TableCell>
+                                    <TableCell>
+                                      <div className="flex items-center gap-2">
+                                        {student.snils ? (
+                                          <>
+                                            <Icon name="CheckCircle2" size={14} className="text-green-600" />
+                                            <span className="text-green-600 text-sm">Указан</span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Icon name="AlertCircle" size={14} className="text-orange-500" />
+                                            <span className="text-orange-500 text-sm">Не указан</span>
+                                          </>
+                                        )}
+                                      </div>
+                                    </TableCell>
                                     <TableCell>
                                       <div className="flex flex-wrap gap-1">
                                         {studentCourses.map((course) => (
@@ -840,12 +872,17 @@ const AdminPanel = () => {
                       </DialogHeader>
                       <div className="space-y-4">
                         <div>
-                          <Label>ФИО</Label>
+                          <Label>ФИО *</Label>
                           <Input placeholder="Иванов Иван Иванович" />
                         </div>
                         <div>
                           <Label>Email</Label>
                           <Input type="email" placeholder="ivanov@mail.ru" />
+                        </div>
+                        <div>
+                          <Label>СНИЛС *</Label>
+                          <Input placeholder="123-456-789 00" maxLength={14} />
+                          <p className="text-xs text-muted-foreground mt-1">Необходим для внесения в ФИС ФРДО</p>
                         </div>
                         <div>
                           <Label>Пароль</Label>
@@ -926,6 +963,7 @@ const AdminPanel = () => {
                           />
                         </div>
                       </TableHead>
+                      <TableHead>СНИЛС</TableHead>
                       <TableHead>Курсы</TableHead>
                       <TableHead>Логин</TableHead>
                       <TableHead>Пароль</TableHead>
@@ -951,6 +989,21 @@ const AdminPanel = () => {
                             <TableCell className="font-medium">{student.name}</TableCell>
                             <TableCell className="text-muted-foreground">{student.organization || 'Не указана'}</TableCell>
                             <TableCell className="text-muted-foreground">{student.group || 'Не указана'}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                {student.snils ? (
+                                  <>
+                                    <Icon name="CheckCircle2" size={14} className="text-green-600" />
+                                    <span className="text-green-600 text-sm">Указан</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Icon name="AlertCircle" size={14} className="text-orange-500" />
+                                    <span className="text-orange-500 text-sm">Не указан</span>
+                                  </>
+                                )}
+                              </div>
+                            </TableCell>
                             <TableCell onClick={(e) => e.stopPropagation()}>
                               <div className="flex gap-1">
                                 <Button 
