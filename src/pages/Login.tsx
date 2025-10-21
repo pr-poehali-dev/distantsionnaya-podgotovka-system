@@ -10,10 +10,19 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/dashboard');
+    setError('');
+
+    if (email === 'admin@company.ru' && password === 'admin123') {
+      navigate('/admin');
+    } else if (email === 'student@company.ru' && password === 'student123') {
+      navigate('/dashboard');
+    } else {
+      setError('Неверный email или пароль');
+    }
   };
 
   return (
@@ -119,6 +128,13 @@ const Login = () => {
                 </div>
               </div>
 
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+                  <Icon name="AlertCircle" size={18} />
+                  <span className="text-sm">{error}</span>
+                </div>
+              )}
+
               <Button 
                 type="submit" 
                 className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-6 text-base"
@@ -127,6 +143,14 @@ const Login = () => {
                 Войти
               </Button>
             </form>
+
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <p className="text-xs text-gray-500 font-medium mb-2">Тестовые аккаунты:</p>
+              <div className="space-y-1 text-xs text-gray-600">
+                <p><strong>Админ:</strong> admin@company.ru / admin123</p>
+                <p><strong>Студент:</strong> student@company.ru / student123</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
