@@ -23,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 const AdminPanel = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [requestSearch, setRequestSearch] = useState('');
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
   const [copiedLogin, setCopiedLogin] = useState<string | null>(null);
   const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
@@ -276,6 +277,17 @@ const AdminPanel = () => {
                 </div>
               </CardHeader>
               <CardContent>
+                <div className="mb-4">
+                  <div className="relative">
+                    <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      placeholder="Поиск по названию организации..."
+                      value={requestSearch}
+                      onChange={(e) => setRequestSearch(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
                 <Tabs defaultValue="active" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="active">
@@ -293,7 +305,13 @@ const AdminPanel = () => {
                   </TabsList>
 
                   <TabsContent value="active" className="space-y-6 mt-6">
-                    {mockTrainingRequests.filter(r => r.status !== 'completed').map((request) => {
+                    {mockTrainingRequests
+                      .filter(r => r.status !== 'completed')
+                      .filter(r => {
+                        const org = mockOrganizations.find(o => o.id === r.organizationId);
+                        return org?.name.toLowerCase().includes(requestSearch.toLowerCase());
+                      })
+                      .map((request) => {
                 const org = mockOrganizations.find(o => o.id === request.organizationId);
                 const course = mockCourses.find(c => c.id === request.courseId);
                 const completedCount = request.students.filter(s => s.studentId).length;
@@ -454,7 +472,13 @@ const AdminPanel = () => {
                   </TabsContent>
 
                   <TabsContent value="archive" className="space-y-6 mt-6">
-                    {mockTrainingRequests.filter(r => r.status === 'completed').map((request) => {
+                    {mockTrainingRequests
+                      .filter(r => r.status === 'completed')
+                      .filter(r => {
+                        const org = mockOrganizations.find(o => o.id === r.organizationId);
+                        return org?.name.toLowerCase().includes(requestSearch.toLowerCase());
+                      })
+                      .map((request) => {
                 const org = mockOrganizations.find(o => o.id === request.organizationId);
                 const course = mockCourses.find(c => c.id === request.courseId);
                 const completedCount = request.students.filter(s => s.studentId).length;
