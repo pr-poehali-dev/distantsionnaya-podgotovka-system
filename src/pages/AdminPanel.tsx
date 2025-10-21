@@ -208,10 +208,6 @@ const AdminPanel = () => {
               <Icon name="BookOpen" size={16} className="mr-2" />
               Курсы
             </TabsTrigger>
-            <TabsTrigger value="assignments">
-              <Icon name="ClipboardList" size={16} className="mr-2" />
-              Назначения
-            </TabsTrigger>
             <TabsTrigger value="certificates">
               <Icon name="Award" size={16} className="mr-2" />
               Документы
@@ -781,115 +777,6 @@ const AdminPanel = () => {
                     );
                   })}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="assignments">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle>Назначение курсов</CardTitle>
-                    <CardDescription>Назначайте курсы студентам и отслеживайте выполнение</CardDescription>
-                  </div>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button>
-                        <Icon name="Plus" size={16} className="mr-2" />
-                        Назначить курс
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Назначить курс студенту</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <Label>Студент</Label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Выберите студента" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {students.map(s => (
-                                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label>Курс</Label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Выберите курс" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {mockCourses.map(c => (
-                                <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label>Срок выполнения</Label>
-                          <Input type="date" />
-                        </div>
-                        <Button className="w-full">Назначить курс</Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Студент</TableHead>
-                      <TableHead>Курс</TableHead>
-                      <TableHead>Назначен</TableHead>
-                      <TableHead>Срок</TableHead>
-                      <TableHead>Статус</TableHead>
-                      <TableHead>Прогресс</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockAssignments.map((assignment) => {
-                      const student = mockUsers.find(u => u.id === assignment.studentId);
-                      const course = mockCourses.find(c => c.id === assignment.courseId);
-                      return (
-                        <TableRow key={assignment.id}>
-                          <TableCell className="font-medium">{student?.name}</TableCell>
-                          <TableCell>{course?.title}</TableCell>
-                          <TableCell>{new Date(assignment.assignedAt).toLocaleDateString('ru')}</TableCell>
-                          <TableCell>{assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString('ru') : '—'}</TableCell>
-                          <TableCell>
-                            <Badge variant={
-                              assignment.status === 'completed' ? 'default' :
-                              assignment.status === 'in_progress' ? 'secondary' :
-                              'outline'
-                            }>
-                              {assignment.status === 'completed' ? 'Завершен' :
-                               assignment.status === 'in_progress' ? 'В процессе' :
-                               'Назначен'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <div className="w-20 h-2 bg-gray-200 rounded-full">
-                                <div
-                                  className="h-2 bg-indigo-600 rounded-full"
-                                  style={{ width: `${assignment.progress}%` }}
-                                />
-                              </div>
-                              <span className="text-sm">{assignment.progress}%</span>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
               </CardContent>
             </Card>
           </TabsContent>
