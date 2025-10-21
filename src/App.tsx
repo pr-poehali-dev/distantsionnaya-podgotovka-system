@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
 import StudentDashboard from "./pages/StudentDashboard";
 import SubscriptionsStats from "./pages/SubscriptionsStats";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
@@ -19,7 +20,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<StudentDashboard />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<StudentDashboard />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/subscriptions" element={<SubscriptionsStats />} />
