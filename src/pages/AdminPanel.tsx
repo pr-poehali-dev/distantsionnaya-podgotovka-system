@@ -102,6 +102,10 @@ const AdminPanel = () => {
                 <Icon name="User" size={20} className="mr-2" />
                 Режим студента
               </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
+                <Icon name="LogOut" size={20} className="mr-2" />
+                Выйти
+              </Button>
               <div className="w-9 h-9 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center">
                 <Icon name="ShieldCheck" className="text-white" size={18} />
               </div>

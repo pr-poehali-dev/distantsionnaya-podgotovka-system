@@ -97,6 +97,10 @@ const StudentDashboard = () => {
               <Button variant="ghost" size="sm">
                 <Icon name="Bell" size={20} />
               </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
+                <Icon name="LogOut" size={20} className="mr-2" />
+                Выйти
+              </Button>
               <div className="w-9 h-9 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center">
                 <Icon name="User" className="text-white" size={18} />
               </div>
