@@ -23,12 +23,20 @@ import { useNavigate } from 'react-router-dom';
 const AdminPanel = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
+  const [copiedLogin, setCopiedLogin] = useState<string | null>(null);
 
   const students = mockUsers.filter(u => u.role === 'student');
   const filteredStudents = students.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     s.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const copyToClipboard = (text: string, studentId: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedLogin(studentId);
+    setTimeout(() => setCopiedLogin(null), 2000);
+  };
 
   const getStudentStats = (studentId: string) => {
     const assignments = mockAssignments.filter(a => a.studentId === studentId);
@@ -39,6 +47,13 @@ const AdminPanel = () => {
       : 0;
     
     return { total: assignments.length, completed, inProgress, avgProgress };
+  };
+
+  const getStudentAssignments = (studentId: string) => {
+    return mockAssignments.filter(a => a.studentId === studentId).map(assignment => {
+      const course = mockCourses.find(c => c.id === assignment.courseId);
+      return { ...assignment, course };
+    });
   };
 
   const getCourseStats = (courseId: string) => {
@@ -440,48 +455,200 @@ const AdminPanel = () => {
                     className="max-w-md"
                   />
                 </div>
-                <Table>
+<Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Студент</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Курсов назначено</TableHead>
-                      <TableHead>Завершено</TableHead>
-                      <TableHead>Прогресс</TableHead>
-                      <TableHead>Действия</TableHead>
+                      <TableHead className="w-8">
+                        <input type="checkbox" className="rounded border-gray-300" />
+                      </TableHead>
+                      <TableHead>ФИО</TableHead>
+                      <TableHead>Организация</TableHead>
+                      <TableHead>Группа</TableHead>
+                      <TableHead>Курсы</TableHead>
+                      <TableHead>Логин</TableHead>
+                      <TableHead>Пароль</TableHead>
+                      <TableHead>Управление</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredStudents.map((student) => {
-                      const stats = getStudentStats(student.id);
+                      const assignments = getStudentAssignments(student.id);
+                      const isExpanded = expandedStudent === student.id;
+                      const org = mockOrganizations[0];
+                      
                       return (
-                        <TableRow key={student.id}>
-                          <TableCell className="font-medium">{student.name}</TableCell>
-                          <TableCell className="text-muted-foreground">{student.email}</TableCell>
-                          <TableCell>{stats.total}</TableCell>
-                          <TableCell>{stats.completed}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <div className="w-24 h-2 bg-gray-200 rounded-full">
-                                <div
-                                  className="h-2 bg-indigo-600 rounded-full"
-                                  style={{ width: `${stats.avgProgress}%` }}
-                                />
+                        <>
+                          <TableRow 
+                            key={student.id} 
+                            className={`cursor-pointer hover:bg-muted/50 ${isExpanded ? 'bg-muted/30' : ''}`}
+                            onClick={() => setExpandedStudent(isExpanded ? null : student.id)}
+                          >
+                            <TableCell onClick={(e) => e.stopPropagation()}>
+                              <input type="checkbox" className="rounded border-gray-300" />
+                            </TableCell>
+                            <TableCell className="font-medium">{student.name}</TableCell>
+                            <TableCell className="text-muted-foreground">{org?.name || 'Не указана'}</TableCell>
+                            <TableCell className="text-muted-foreground">{org?.name || 'Не указана'}</TableCell>
+                            <TableCell onClick={(e) => e.stopPropagation()}>
+                              <div className="flex gap-1">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  className="h-8 w-8 p-0"
+                                  title="Просмотр курсов"
+                                >
+                                  <Icon name="Eye" size={16} className="text-blue-600" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  className="h-8 w-8 p-0"
+                                  title="Добавить курс"
+                                >
+                                  <Icon name="Plus" size={16} className="text-green-600" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline" 
+                                  className="h-8 w-8 p-0"
+                                  title="Статистика"
+                                >
+                                  <Icon name="BarChart3" size={16} className="text-purple-600" />
+                                </Button>
                               </div>
-                              <span className="text-sm font-medium">{stats.avgProgress}%</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="outline">
-                                <Icon name="Eye" size={14} />
-                              </Button>
-                              <Button size="sm" variant="outline">
-                                <Icon name="Mail" size={14} />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
+                            </TableCell>
+                            <TableCell onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center gap-2">
+                                <code className="text-sm bg-muted px-2 py-1 rounded">{student.email.split('@')[0]}</code>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-6 w-6 p-0"
+                                  onClick={() => copyToClipboard(student.email.split('@')[0], student.id)}
+                                  title="Копировать логин"
+                                >
+                                  <Icon 
+                                    name={copiedLogin === student.id ? "Check" : "Copy"} 
+                                    size={14} 
+                                    className={copiedLogin === student.id ? "text-green-600" : ""}
+                                  />
+                                </Button>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">••••••••</TableCell>
+                            <TableCell onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center gap-2">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="h-8 w-8 p-0"
+                                  title="Редактировать"
+                                >
+                                  <Icon name="Pencil" size={16} className="text-blue-600" />
+                                </Button>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                  <input type="checkbox" defaultChecked className="sr-only peer" />
+                                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+                                </label>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                          {isExpanded && (
+                            <TableRow>
+                              <TableCell colSpan={8} className="bg-blue-50/50 p-0">
+                                <div className="p-4 space-y-3">
+                                  <h4 className="font-semibold text-blue-900 mb-3">
+                                    Назначенные курсы: {student.name}
+                                  </h4>
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow className="bg-white">
+                                        <TableHead>Наименование курса</TableHead>
+                                        <TableHead>Дата начала</TableHead>
+                                        <TableHead>Дата завершения</TableHead>
+                                        <TableHead>Статус</TableHead>
+                                        <TableHead>Действия</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {assignments.length === 0 ? (
+                                        <TableRow>
+                                          <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                                            Курсы не назначены
+                                          </TableCell>
+                                        </TableRow>
+                                      ) : (
+                                        assignments.map((assignment) => (
+                                          <TableRow key={assignment.id} className="bg-white">
+                                            <TableCell className="font-medium">
+                                              {assignment.course?.title}
+                                            </TableCell>
+                                            <TableCell>
+                                              <Input 
+                                                type="date" 
+                                                defaultValue={assignment.assignedAt.split('T')[0]}
+                                                className="w-40"
+                                                onClick={(e) => e.stopPropagation()}
+                                              />
+                                            </TableCell>
+                                            <TableCell>
+                                              <Input 
+                                                type="date" 
+                                                defaultValue={assignment.completedAt?.split('T')[0] || ''}
+                                                className="w-40"
+                                                onClick={(e) => e.stopPropagation()}
+                                              />
+                                            </TableCell>
+                                            <TableCell>
+                                              <Badge 
+                                                variant={assignment.status === 'completed' ? 'default' : 'secondary'}
+                                                className={
+                                                  assignment.status === 'completed' 
+                                                    ? 'bg-green-100 text-green-700 border-green-300' 
+                                                    : 'bg-blue-100 text-blue-700 border-blue-300'
+                                                }
+                                              >
+                                                {assignment.status === 'completed' ? 'Завершено' : 'Активировано'}
+                                              </Badge>
+                                            </TableCell>
+                                            <TableCell onClick={(e) => e.stopPropagation()}>
+                                              <div className="flex gap-1">
+                                                <Button 
+                                                  size="sm" 
+                                                  variant="ghost" 
+                                                  className="h-8 w-8 p-0"
+                                                  title="Редактировать сроки"
+                                                >
+                                                  <Icon name="Calendar" size={16} className="text-blue-600" />
+                                                </Button>
+                                                <Button 
+                                                  size="sm" 
+                                                  variant="ghost" 
+                                                  className="h-8 w-8 p-0"
+                                                  title="Подтвердить"
+                                                >
+                                                  <Icon name="CheckCircle2" size={16} className="text-green-600" />
+                                                </Button>
+                                                <Button 
+                                                  size="sm" 
+                                                  variant="ghost" 
+                                                  className="h-8 w-8 p-0"
+                                                  title="Удалить назначение"
+                                                >
+                                                  <Icon name="Trash2" size={16} className="text-red-600" />
+                                                </Button>
+                                              </div>
+                                            </TableCell>
+                                          </TableRow>
+                                        ))
+                                      )}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </>
                       );
                     })}
                   </TableBody>
