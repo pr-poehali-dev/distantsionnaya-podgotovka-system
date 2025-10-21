@@ -30,6 +30,8 @@ const AdminPanel = () => {
   const [nameFilter, setNameFilter] = useState('');
   const [organizationFilter, setOrganizationFilter] = useState('');
   const [groupFilter, setGroupFilter] = useState('');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [selectedOrganization, setSelectedOrganization] = useState('');
 
   const students = mockUsers.filter(u => u.role === 'student');
   const filteredStudents = students.filter(s => {
@@ -264,12 +266,12 @@ const AdminPanel = () => {
                     <DialogContent className="max-w-2xl">
                       <DialogHeader>
                         <DialogTitle>Создать заявку на обучение</DialogTitle>
-                        <DialogDescription>Добавьте заявку от организации с группой слушателей</DialogDescription>
+                        <DialogDescription>Загрузите Excel-файл с данными слушателей или заполните форму вручную</DialogDescription>
                       </DialogHeader>
-                      <div className="space-y-4">
+                      <div className="space-y-6">
                         <div>
                           <Label>Организация</Label>
-                          <Select>
+                          <Select value={selectedOrganization} onValueChange={setSelectedOrganization}>
                             <SelectTrigger>
                               <SelectValue placeholder="Выберите организацию" />
                             </SelectTrigger>
@@ -280,27 +282,90 @@ const AdminPanel = () => {
                             </SelectContent>
                           </Select>
                         </div>
-                        <div>
-                          <Label>Курс подготовки</Label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Выберите курс" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {mockCourses.map(c => (
-                                <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <Label>Файл Excel со списком слушателей</Label>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                const link = document.createElement('a');
+                                link.href = '/template.xlsx';
+                                link.download = 'Шаблон_заявки.xlsx';
+                                link.click();
+                              }}
+                            >
+                              <Icon name="Download" size={14} className="mr-2" />
+                              Скачать шаблон
+                            </Button>
+                          </div>
+                          
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-indigo-400 transition-colors">
+                            <input
+                              type="file"
+                              accept=".xlsx,.xls"
+                              onChange={(e) => setUploadedFile(e.target.files?.[0] || null)}
+                              className="hidden"
+                              id="excel-upload"
+                            />
+                            <label htmlFor="excel-upload" className="cursor-pointer">
+                              <div className="flex flex-col items-center gap-3">
+                                <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
+                                  <Icon name="FileSpreadsheet" size={32} className="text-indigo-600" />
+                                </div>
+                                {uploadedFile ? (
+                                  <div className="space-y-2">
+                                    <p className="text-sm font-medium text-green-600">
+                                      <Icon name="CheckCircle2" size={16} className="inline mr-1" />
+                                      {uploadedFile.name}
+                                    </p>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        setUploadedFile(null);
+                                      }}
+                                    >
+                                      <Icon name="X" size={14} className="mr-1" />
+                                      Удалить файл
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <p className="text-sm font-medium">Нажмите для выбора файла</p>
+                                    <p className="text-xs text-muted-foreground">или перетащите Excel-файл сюда</p>
+                                    <p className="text-xs text-muted-foreground mt-2">Формат: .xlsx, .xls</p>
+                                  </>
+                                )}
+                              </div>
+                            </label>
+                          </div>
+
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div className="flex gap-3">
+                              <Icon name="Info" size={20} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                              <div className="text-sm text-blue-900 space-y-2">
+                                <p className="font-medium">Формат шаблона Excel:</p>
+                                <ul className="list-disc list-inside space-y-1 text-xs">
+                                  <li>Столбец A: ФИО слушателя</li>
+                                  <li>Столбец B: Должность</li>
+                                  <li>Столбец C: Email</li>
+                                  <li>Столбцы D, E, F...: Курсы (названия курсов)</li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <Label>Список слушателей (ФИО, должность через запятую)</Label>
-                          <Textarea 
-                            placeholder="Иванов Иван Иванович, Инженер&#10;Петров Петр Петрович, Мастер"
-                            rows={6}
-                          />
-                        </div>
-                        <Button className="w-full">Создать заявку</Button>
+
+                        <Button 
+                          className="w-full" 
+                          disabled={!selectedOrganization || !uploadedFile}
+                        >
+                          <Icon name="Upload" size={16} className="mr-2" />
+                          Загрузить и создать заявку
+                        </Button>
                       </div>
                     </DialogContent>
                   </Dialog>
