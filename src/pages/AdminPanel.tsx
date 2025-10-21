@@ -343,7 +343,8 @@ const AdminPanel = () => {
                       })
                       .map((request) => {
                 const org = mockOrganizations.find(o => o.id === request.organizationId);
-                const course = mockCourses.find(c => c.id === request.courseId);
+                const allCourseIds = [...new Set(request.students.flatMap(s => s.courseIds))];
+                const courses = allCourseIds.map(id => mockCourses.find(c => c.id === id)).filter(Boolean);
                 const completedCount = request.students.filter(s => s.studentId).length;
                 
                 return (
@@ -371,9 +372,15 @@ const AdminPanel = () => {
                             </Badge>
                           </div>
                           <CardDescription className="space-y-1">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <Icon name="BookOpen" size={14} />
-                              <span>{course?.title}</span>
+                              <div className="flex flex-wrap gap-1">
+                                {courses.map((course) => (
+                                  <Badge key={course.id} variant="outline" className="text-xs">
+                                    {course.title}
+                                  </Badge>
+                                ))}
+                              </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <Icon name="Calendar" size={14} />
@@ -430,24 +437,37 @@ const AdminPanel = () => {
                                 <TableHead>ФИО</TableHead>
                                 <TableHead>Должность</TableHead>
                                 <TableHead>Email</TableHead>
+                                <TableHead>Курсы</TableHead>
                                 <TableHead>Статус</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {request.students.map((student) => (
-                                <TableRow key={student.id}>
-                                  <TableCell className="font-medium">{student.name}</TableCell>
-                                  <TableCell>{student.position}</TableCell>
-                                  <TableCell className="text-muted-foreground">{student.email || '—'}</TableCell>
-                                  <TableCell>
-                                    {student.studentId ? (
-                                      <Badge className="bg-green-100 text-green-700">Обучается</Badge>
-                                    ) : (
-                                      <Badge variant="outline">Не назначен</Badge>
-                                    )}
-                                  </TableCell>
-                                </TableRow>
-                              ))}
+                              {request.students.map((student) => {
+                                const studentCourses = student.courseIds.map(id => mockCourses.find(c => c.id === id)).filter(Boolean);
+                                return (
+                                  <TableRow key={student.id}>
+                                    <TableCell className="font-medium">{student.name}</TableCell>
+                                    <TableCell>{student.position}</TableCell>
+                                    <TableCell className="text-muted-foreground">{student.email || '—'}</TableCell>
+                                    <TableCell>
+                                      <div className="flex flex-wrap gap-1">
+                                        {studentCourses.map((course) => (
+                                          <Badge key={course.id} variant="secondary" className="text-xs">
+                                            {course.title}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      {student.studentId ? (
+                                        <Badge className="bg-green-100 text-green-700">Обучается</Badge>
+                                      ) : (
+                                        <Badge variant="outline">Не назначен</Badge>
+                                      )}
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
                             </TableBody>
                           </Table>
                         )}
@@ -510,7 +530,8 @@ const AdminPanel = () => {
                       })
                       .map((request) => {
                 const org = mockOrganizations.find(o => o.id === request.organizationId);
-                const course = mockCourses.find(c => c.id === request.courseId);
+                const allCourseIds = [...new Set(request.students.flatMap(s => s.courseIds))];
+                const courses = allCourseIds.map(id => mockCourses.find(c => c.id === id)).filter(Boolean);
                 const completedCount = request.students.filter(s => s.studentId).length;
                 
                 return (
@@ -525,9 +546,15 @@ const AdminPanel = () => {
                             <Badge variant="default">Завершено</Badge>
                           </div>
                           <CardDescription className="space-y-1">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <Icon name="BookOpen" size={14} />
-                              <span>{course?.title}</span>
+                              <div className="flex flex-wrap gap-1">
+                                {courses.map((course) => (
+                                  <Badge key={course.id} variant="outline" className="text-xs">
+                                    {course.title}
+                                  </Badge>
+                                ))}
+                              </div>
                             </div>
                             <div className="flex items-center gap-2">
                               <Icon name="Calendar" size={14} />
@@ -571,24 +598,37 @@ const AdminPanel = () => {
                                 <TableHead>ФИО</TableHead>
                                 <TableHead>Должность</TableHead>
                                 <TableHead>Email</TableHead>
+                                <TableHead>Курсы</TableHead>
                                 <TableHead>Статус</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
-                              {request.students.map((student) => (
-                                <TableRow key={student.id}>
-                                  <TableCell className="font-medium">{student.name}</TableCell>
-                                  <TableCell>{student.position}</TableCell>
-                                  <TableCell className="text-muted-foreground">{student.email || '—'}</TableCell>
-                                  <TableCell>
-                                    {student.studentId ? (
-                                      <Badge className="bg-green-100 text-green-700">Обучается</Badge>
-                                    ) : (
-                                      <Badge variant="outline">Не назначен</Badge>
-                                    )}
-                                  </TableCell>
-                                </TableRow>
-                              ))}
+                              {request.students.map((student) => {
+                                const studentCourses = student.courseIds.map(id => mockCourses.find(c => c.id === id)).filter(Boolean);
+                                return (
+                                  <TableRow key={student.id}>
+                                    <TableCell className="font-medium">{student.name}</TableCell>
+                                    <TableCell>{student.position}</TableCell>
+                                    <TableCell className="text-muted-foreground">{student.email || '—'}</TableCell>
+                                    <TableCell>
+                                      <div className="flex flex-wrap gap-1">
+                                        {studentCourses.map((course) => (
+                                          <Badge key={course.id} variant="secondary" className="text-xs">
+                                            {course.title}
+                                          </Badge>
+                                        ))}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      {student.studentId ? (
+                                        <Badge className="bg-green-100 text-green-700">Обучается</Badge>
+                                      ) : (
+                                        <Badge variant="outline">Не назначен</Badge>
+                                      )}
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
                             </TableBody>
                           </Table>
                         )}

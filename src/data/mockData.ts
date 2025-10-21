@@ -26,7 +26,6 @@ export interface Organization {
 export interface TrainingRequest {
   id: string;
   organizationId: string;
-  courseId: string;
   requestDate: string;
   status: 'pending' | 'approved' | 'in_progress' | 'completed';
   students: RequestStudent[];
@@ -40,6 +39,7 @@ export interface RequestStudent {
   position: string;
   email?: string;
   studentId?: string;
+  courseIds: string[];
 }
 
 export interface Course {
@@ -415,49 +415,45 @@ export const mockTrainingRequests: TrainingRequest[] = [
   {
     id: 'req-1',
     organizationId: 'org-1',
-    courseId: 'course-1',
     requestDate: '2024-03-01',
     status: 'completed',
     completedAt: '2024-03-25',
     students: [
-      { id: 'rs-1', requestId: 'req-1', name: 'Иванов Петр Сергеевич', position: 'Инженер', email: 'ivanov@stroyteh.ru', studentId: 'student-1' },
-      { id: 'rs-2', requestId: 'req-1', name: 'Сидоров Иван Петрович', position: 'Мастер участка', email: 'sidorov@stroyteh.ru', studentId: 'student-3' },
+      { id: 'rs-1', requestId: 'req-1', name: 'Иванов Петр Сергеевич', position: 'Инженер', email: 'ivanov@stroyteh.ru', studentId: 'student-1', courseIds: ['course-1', 'course-2'] },
+      { id: 'rs-2', requestId: 'req-1', name: 'Сидоров Иван Петрович', position: 'Мастер участка', email: 'sidorov@stroyteh.ru', studentId: 'student-3', courseIds: ['course-1'] },
     ],
   },
   {
     id: 'req-2',
     organizationId: 'org-2',
-    courseId: 'course-3',
     requestDate: '2024-03-10',
     status: 'in_progress',
     students: [
-      { id: 'rs-3', requestId: 'req-2', name: 'Петрова Анна Владимировна', position: 'Электрик', email: 'petrova@energomash.ru', studentId: 'student-2' },
-      { id: 'rs-4', requestId: 'req-2', name: 'Николаев Сергей Иванович', position: 'Электромонтер', email: 'nikolaev@energomash.ru' },
-      { id: 'rs-5', requestId: 'req-2', name: 'Федоров Алексей Дмитриевич', position: 'Начальник смены', email: 'fedorov@energomash.ru' },
+      { id: 'rs-3', requestId: 'req-2', name: 'Петрова Анна Владимировна', position: 'Электрик', email: 'petrova@energomash.ru', studentId: 'student-2', courseIds: ['course-3'] },
+      { id: 'rs-4', requestId: 'req-2', name: 'Николаев Сергей Иванович', position: 'Электромонтер', email: 'nikolaev@energomash.ru', courseIds: ['course-3', 'course-2'] },
+      { id: 'rs-5', requestId: 'req-2', name: 'Федоров Алексей Дмитриевич', position: 'Начальник смены', email: 'fedorov@energomash.ru', courseIds: ['course-1', 'course-3'] },
     ],
   },
   {
     id: 'req-3',
     organizationId: 'org-3',
-    courseId: 'course-2',
     requestDate: '2024-03-15',
     status: 'approved',
     students: [
-      { id: 'rs-6', requestId: 'req-3', name: 'Морозов Игорь Александрович', position: 'Главный инженер', email: 'morozov@mettrade.ru' },
-      { id: 'rs-7', requestId: 'req-3', name: 'Соколова Елена Петровна', position: 'Инженер по ОТ', email: 'sokolova@mettrade.ru' },
+      { id: 'rs-6', requestId: 'req-3', name: 'Морозов Игорь Александрович', position: 'Главный инженер', email: 'morozov@mettrade.ru', courseIds: ['course-2', 'course-1'] },
+      { id: 'rs-7', requestId: 'req-3', name: 'Соколова Елена Петровна', position: 'Инженер по ОТ', email: 'sokolova@mettrade.ru', courseIds: ['course-1'] },
     ],
   },
   {
     id: 'req-4',
     organizationId: 'org-1',
-    courseId: 'course-4',
     requestDate: '2024-03-20',
     status: 'pending',
     students: [
-      { id: 'rs-8', requestId: 'req-4', name: 'Павлов Михаил Сергеевич', position: 'Директор по производству', email: 'pavlov@stroyteh.ru' },
-      { id: 'rs-9', requestId: 'req-4', name: 'Козлов Андрей Владимирович', position: 'Заместитель директора', email: 'kozlov@stroyteh.ru' },
-      { id: 'rs-10', requestId: 'req-4', name: 'Новиков Денис Игоревич', position: 'Начальник цеха', email: 'novikov@stroyteh.ru' },
-      { id: 'rs-11', requestId: 'req-4', name: 'Лебедев Роман Петрович', position: 'Мастер смены', email: 'lebedev@stroyteh.ru' },
+      { id: 'rs-8', requestId: 'req-4', name: 'Павлов Михаил Сергеевич', position: 'Директор по производству', email: 'pavlov@stroyteh.ru', courseIds: ['course-4'] },
+      { id: 'rs-9', requestId: 'req-4', name: 'Козлов Андрей Владимирович', position: 'Заместитель директора', email: 'kozlov@stroyteh.ru', courseIds: ['course-4', 'course-1'] },
+      { id: 'rs-10', requestId: 'req-4', name: 'Новиков Денис Игоревич', position: 'Начальник цеха', email: 'novikov@stroyteh.ru', courseIds: ['course-4'] },
+      { id: 'rs-11', requestId: 'req-4', name: 'Лебедев Роман Петрович', position: 'Мастер смены', email: 'lebedev@stroyteh.ru', courseIds: ['course-4', 'course-2'] },
     ],
   },
 ];
