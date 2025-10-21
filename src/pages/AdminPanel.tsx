@@ -226,6 +226,13 @@ const AdminPanel = () => {
               <Icon name="Award" size={24} className="mb-2" />
               <span className="text-xs font-medium">Документы</span>
             </TabsTrigger>
+            <TabsTrigger 
+              value="settings"
+              className="flex-col h-auto py-4 px-6 data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+            >
+              <Icon name="Settings" size={24} className="mb-2" />
+              <span className="text-xs font-medium">Настройки организации</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="requests">
@@ -1015,6 +1022,23 @@ const AdminPanel = () => {
                       </div>
                     );
                   })}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle>Настройки организации</CardTitle>
+                <CardDescription>Управление параметрами и конфигурацией вашей организации</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-center">
+                    <Icon name="Settings" size={48} className="mx-auto text-gray-300 mb-4" />
+                    <p className="text-gray-500 text-lg">Раздел в разработке</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
