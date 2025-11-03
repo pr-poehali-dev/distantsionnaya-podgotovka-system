@@ -25,6 +25,8 @@ const StudentDashboard = () => {
   const [selectedMaterial, setSelectedMaterial] = useState<CourseMaterial | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [viewedMaterials, setViewedMaterials] = useState<Set<string>>(new Set());
+  const [showAnswerFeedback, setShowAnswerFeedback] = useState(false);
+  const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
 
   if (!currentUser) return null;
 
@@ -53,9 +55,18 @@ const StudentDashboard = () => {
 
   const handleAnswerSelect = (questionId: string, answerIndex: number) => {
     setSelectedAnswers({ ...selectedAnswers, [questionId]: answerIndex });
+    
+    if (testMode === 'adaptive') {
+      const question = courseQuestions.find(q => q.id === questionId);
+      if (question) {
+        setIsAnswerCorrect(answerIndex === question.correctAnswer);
+        setShowAnswerFeedback(true);
+      }
+    }
   };
 
   const handleNextQuestion = () => {
+    setShowAnswerFeedback(false);
     if (currentQuestion < courseQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
@@ -322,58 +333,143 @@ const StudentDashboard = () => {
                     </Card>
                   </div>
                 ) : !showResults ? (
-                  <Card>
-                    <CardHeader>
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <CardTitle>Вопрос {currentQuestion + 1} из {courseQuestions.length}</CardTitle>
-                          <CardDescription>
-                            {testMode === 'adaptive' ? 'Адаптивный режим' : 'Полное тестирование'}
-                          </CardDescription>
-                        </div>
-                        <Badge>{Math.round(((currentQuestion + 1) / courseQuestions.length) * 100)}%</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <Progress value={((currentQuestion + 1) / courseQuestions.length) * 100} />
-                      
-                      <div className="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg">
-                        <p className="text-lg font-medium">{courseQuestions[currentQuestion].question}</p>
-                      </div>
-
-                      <RadioGroup
-                        value={selectedAnswers[courseQuestions[currentQuestion].id]?.toString()}
-                        onValueChange={(value) => handleAnswerSelect(courseQuestions[currentQuestion].id, parseInt(value))}
-                      >
-                        {courseQuestions[currentQuestion].options.map((option, index) => (
-                          <div key={index} className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-gray-50">
-                            <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-                            <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer">
-                              {option}
-                            </Label>
+                  <div className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <CardTitle>Вопрос {currentQuestion + 1} из {courseQuestions.length}</CardTitle>
+                            <CardDescription>
+                              {testMode === 'adaptive' ? 'Адаптивный режим' : 'Полное тестирование'}
+                            </CardDescription>
                           </div>
-                        ))}
-                      </RadioGroup>
+                          <Badge>{Math.round(((currentQuestion + 1) / courseQuestions.length) * 100)}%</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <Progress value={((currentQuestion + 1) / courseQuestions.length) * 100} />
+                        
+                        <div className="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg">
+                          <p className="text-lg font-medium">{courseQuestions[currentQuestion].question}</p>
+                        </div>
 
-                      <div className="flex justify-between">
-                        <Button
-                          variant="outline"
-                          onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
-                          disabled={currentQuestion === 0}
+                        <RadioGroup
+                          value={selectedAnswers[courseQuestions[currentQuestion].id]?.toString()}
+                          onValueChange={(value) => handleAnswerSelect(courseQuestions[currentQuestion].id, parseInt(value))}
+                          disabled={showAnswerFeedback}
                         >
-                          <Icon name="ChevronLeft" size={16} className="mr-2" />
-                          Назад
-                        </Button>
-                        <Button
-                          onClick={handleNextQuestion}
-                          disabled={selectedAnswers[courseQuestions[currentQuestion].id] === undefined}
-                        >
-                          {currentQuestion === courseQuestions.length - 1 ? 'Завершить' : 'Далее'}
-                          <Icon name="ChevronRight" size={16} className="ml-2" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                          {courseQuestions[currentQuestion].options.map((option, index) => {
+                            const isSelected = selectedAnswers[courseQuestions[currentQuestion].id] === index;
+                            const isCorrect = index === courseQuestions[currentQuestion].correctAnswer;
+                            
+                            return (
+                              <div 
+                                key={index} 
+                                className={`flex items-center space-x-3 p-4 border rounded-lg transition-all ${
+                                  !showAnswerFeedback ? 'hover:bg-gray-50' : ''
+                                } ${
+                                  showAnswerFeedback && testMode === 'adaptive' && isSelected && isCorrect ? 'bg-green-50 border-green-500' : ''
+                                } ${
+                                  showAnswerFeedback && testMode === 'adaptive' && isSelected && !isCorrect ? 'bg-red-50 border-red-500' : ''
+                                }`}
+                              >
+                                <RadioGroupItem value={index.toString()} id={`option-${index}`} />
+                                <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer flex items-center justify-between">
+                                  <span>{option}</span>
+                                  {showAnswerFeedback && testMode === 'adaptive' && isSelected && (
+                                    <Icon 
+                                      name={isCorrect ? 'CheckCircle2' : 'XCircle'} 
+                                      className={isCorrect ? 'text-green-600' : 'text-red-600'} 
+                                      size={20} 
+                                    />
+                                  )}
+                                </Label>
+                              </div>
+                            );
+                          })}
+                        </RadioGroup>
+
+                        {!showAnswerFeedback && (
+                          <div className="flex justify-between">
+                            <Button
+                              variant="outline"
+                              onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
+                              disabled={currentQuestion === 0 || testMode === 'adaptive'}
+                            >
+                              <Icon name="ChevronLeft" size={16} className="mr-2" />
+                              Назад
+                            </Button>
+                            <Button
+                              onClick={handleNextQuestion}
+                              disabled={selectedAnswers[courseQuestions[currentQuestion].id] === undefined}
+                            >
+                              {currentQuestion === courseQuestions.length - 1 ? 'Завершить' : 'Далее'}
+                              <Icon name="ChevronRight" size={16} className="ml-2" />
+                            </Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {showAnswerFeedback && testMode === 'adaptive' && (
+                      <Card className={`animate-scale-in ${isAnswerCorrect ? 'border-green-500' : 'border-red-500'} border-2`}>
+                        <CardHeader>
+                          <div className="flex items-center gap-3">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                              isAnswerCorrect ? 'bg-green-100' : 'bg-red-100'
+                            }`}>
+                              <Icon 
+                                name={isAnswerCorrect ? 'CheckCircle2' : 'XCircle'} 
+                                className={isAnswerCorrect ? 'text-green-600' : 'text-red-600'} 
+                                size={28} 
+                              />
+                            </div>
+                            <div>
+                              <CardTitle className={isAnswerCorrect ? 'text-green-700' : 'text-red-700'}>
+                                {isAnswerCorrect ? 'Правильно!' : 'Неправильно'}
+                              </CardTitle>
+                              <CardDescription>
+                                {courseQuestions[currentQuestion].explanation}
+                              </CardDescription>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        
+                        {courseQuestions[currentQuestion].regulatoryDocument && (
+                          <CardContent className="space-y-4">
+                            <div className="border-t pt-4">
+                              <div className="flex items-start gap-2 mb-3">
+                                <Icon name="BookOpen" className="text-indigo-600 mt-1" size={20} />
+                                <div>
+                                  <p className="font-semibold text-indigo-900">
+                                    {courseQuestions[currentQuestion].regulatoryDocument}
+                                  </p>
+                                  <p className="text-sm text-indigo-700 font-medium mt-1">
+                                    {courseQuestions[currentQuestion].documentClause}
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                                <p className="text-sm text-gray-700 leading-relaxed">
+                                  {courseQuestions[currentQuestion].clauseText}
+                                </p>
+                              </div>
+                            </div>
+                            
+                            <Button 
+                              className="w-full" 
+                              size="lg"
+                              onClick={handleNextQuestion}
+                            >
+                              Изучил, давай дальше
+                              <Icon name="ArrowRight" size={20} className="ml-2" />
+                            </Button>
+                          </CardContent>
+                        )}
+                      </Card>
+                    )}
+                  </div>
                 ) : (
                   <div className="space-y-6">
                     <Card>
