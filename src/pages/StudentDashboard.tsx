@@ -242,50 +242,40 @@ const StudentDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!selectedCourse ? (
           <>
-            <div className="mb-8">
-              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Мои курсы
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                Назначенные вам программы обучения
-              </p>
-            </div>
+            <div className="mb-8 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+              <div>
+                <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Мои курсы
+                </h1>
+                <p className="text-muted-foreground text-lg">
+                  Назначенные вам программы обучения
+                </p>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <Card className="animate-scale-in">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Всего курсов
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-indigo-600">{myAssignments.length}</div>
-                </CardContent>
-              </Card>
+              <div className="flex gap-4">
+                <Card className="animate-scale-in border-none shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground mb-1">Всего курсов</div>
+                    <div className="text-3xl font-bold text-indigo-600">{myAssignments.length}</div>
+                  </CardContent>
+                </Card>
 
-              <Card className="animate-scale-in" style={{ animationDelay: '0.1s' }}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Завершено
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-green-600">
-                    {myAssignments.filter(a => a.status === 'completed').length}
-                  </div>
-                </CardContent>
-              </Card>
+                <Card className="animate-scale-in border-none shadow-sm" style={{ animationDelay: '0.1s' }}>
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground mb-1">Завершено</div>
+                    <div className="text-3xl font-bold text-green-600">
+                      {myAssignments.filter(a => a.status === 'completed').length}
+                    </div>
+                  </CardContent>
+                </Card>
 
-              <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Сертификаты
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold text-amber-600">{myCertificates.length}</div>
-                </CardContent>
-              </Card>
+                <Card className="animate-scale-in border-none shadow-sm" style={{ animationDelay: '0.2s' }}>
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground mb-1">Сертификаты</div>
+                    <div className="text-3xl font-bold text-amber-600">{myCertificates.length}</div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
