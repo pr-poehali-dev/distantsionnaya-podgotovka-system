@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Test get exam attempts",
+      "method": "GET",
+      "path": "/?studentId=student1&courseId=course1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "attempts": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test start exam",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "start",
+        "studentId": "student1",
+        "courseId": "course1",
+        "studentName": "Test Student"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "attemptId": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

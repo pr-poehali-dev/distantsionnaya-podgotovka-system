@@ -12,12 +12,15 @@ import Icon from '@/components/ui/icon';
 import { mockUsers, mockCourses, mockAssignments, mockTestQuestions, mockMaterials, mockCertificates, getCurrentUser } from '@/data/mockData';
 import { useNavigate } from 'react-router-dom';
 import { CourseMaterial } from '@/data/mockData';
+import ExamMode from '@/components/ExamMode';
+import ExamStatsModal from '@/components/ExamStatsModal';
+import AdaptiveTestMode from '@/components/AdaptiveTestMode';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-  const [testMode, setTestMode] = useState<'adaptive' | 'full' | null>(null);
+  const [testMode, setTestMode] = useState<'adaptive' | 'full' | 'exam' | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [showResults, setShowResults] = useState(false);
@@ -28,6 +31,11 @@ const StudentDashboard = () => {
   const [showAnswerFeedback, setShowAnswerFeedback] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
   const [showErrorAnalysis, setShowErrorAnalysis] = useState<'questions' | 'documents' | null>(null);
+  const [examTimer, setExamTimer] = useState(1200);
+  const [examStartTime, setExamStartTime] = useState<number | null>(null);
+  const [showExamStats, setShowExamStats] = useState(false);
+  const [examAttemptId, setExamAttemptId] = useState<number | null>(null);
+  const [activeQuestions, setActiveQuestions] = useState<string[]>([]);
 
   if (!currentUser) return null;
 
@@ -359,8 +367,51 @@ const StudentDashboard = () => {
                         </Button>
                       </CardContent>
                     </Card>
+
+                    <Card className="hover:shadow-lg transition-shadow border-2 border-amber-200">
+                      <CardHeader>
+                        <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center mb-3">
+                          <Icon name="Award" className="text-amber-600" size={24} />
+                        </div>
+                        <CardTitle className="flex items-center justify-between">
+                          Экзамен
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setShowExamStats(true)}
+                            className="h-8"
+                          >
+                            <Icon name="BarChart3" size={16} className="mr-1" />
+                            Статистика
+                          </Button>
+                        </CardTitle>
+                        <CardDescription>
+                          20 вопросов за 20 минут. Имитация реального экзамена с таймером и протоколом результатов.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Button className="w-full bg-amber-600 hover:bg-amber-700" onClick={() => handleStartTest('exam')}>
+                          <Icon name="Play" size={16} className="mr-2" />
+                          Начать экзамен
+                        </Button>
+                      </CardContent>
+                    </Card>
                   </div>
-                ) : (testMode === 'adaptive' || testMode === 'full') && !showResults ? (
+                ) : testMode === 'exam' ? (
+                  <ExamMode
+                    questions={courseQuestions}
+                    studentName={currentUser.name}
+                    courseName={selectedCourseData?.title || ''}
+                    onExit={() => setTestMode(null)}
+                  />
+                ) : testMode === 'adaptive' ? (
+                  <AdaptiveTestMode
+                    questions={courseQuestions}
+                    studentId={currentUser.id}
+                    courseId={selectedCourse || ''}
+                    onExit={() => setTestMode(null)}
+                  />
+                ) : testMode === 'full' && !showResults ? (
                   <div className="space-y-6">
                     <Card>
                       <CardHeader>
@@ -533,11 +584,28 @@ const StudentDashboard = () => {
                           </p>
                         </div>
 
-                        <div className="flex gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <Button className="flex-1" onClick={() => { setTestMode(null); setShowErrorAnalysis(null); }}>
                             <Icon name="RotateCcw" size={16} className="mr-2" />
-                            Пройти снова
+                            Пройти заново
                           </Button>
+                          {getWrongAnswers().length > 0 && (
+                            <Button 
+                              variant="default" 
+                              className="flex-1 bg-amber-600 hover:bg-amber-700"
+                              onClick={() => {
+                                const wrongIds = getWrongAnswers().map(q => q.id);
+                                const wrongQuestions = courseQuestions.filter(q => wrongIds.includes(q.id));
+                                setCurrentQuestion(courseQuestions.indexOf(wrongQuestions[0]));
+                                setShowResults(false);
+                                setShowErrorAnalysis(null);
+                                setSelectedAnswers({});
+                              }}
+                            >
+                              <Icon name="AlertCircle" size={16} className="mr-2" />
+                              Работать над ошибками
+                            </Button>
+                          )}
                           <Button variant="outline" className="flex-1">
                             <Icon name="Download" size={16} className="mr-2" />
                             Скачать протокол
@@ -805,6 +873,15 @@ const StudentDashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {selectedCourse && (
+        <ExamStatsModal
+          open={showExamStats}
+          onClose={() => setShowExamStats(false)}
+          studentId={currentUser.id}
+          courseId={selectedCourse}
+        />
+      )}
     </div>
   );
 };
