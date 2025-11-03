@@ -396,15 +396,15 @@ const StudentDashboard = () => {
                                 className={`flex items-center space-x-3 p-4 border rounded-lg transition-all ${
                                   !showAnswerFeedback ? 'hover:bg-gray-50' : ''
                                 } ${
-                                  showAnswerFeedback && testMode === 'adaptive' && isSelected && isCorrect ? 'bg-green-50 border-green-500' : ''
+                                  showAnswerFeedback && isSelected && isCorrect ? 'bg-green-50 border-green-500' : ''
                                 } ${
-                                  showAnswerFeedback && testMode === 'adaptive' && isSelected && !isCorrect ? 'bg-red-50 border-red-500' : ''
+                                  showAnswerFeedback && isSelected && !isCorrect ? 'bg-red-50 border-red-500' : ''
                                 }`}
                               >
                                 <RadioGroupItem value={index.toString()} id={`option-${index}`} />
                                 <Label htmlFor={`option-${index}`} className="flex-1 cursor-pointer flex items-center justify-between">
                                   <span>{option}</span>
-                                  {showAnswerFeedback && testMode === 'adaptive' && isSelected && (
+                                  {showAnswerFeedback && isSelected && (
                                     <Icon 
                                       name={isCorrect ? 'CheckCircle2' : 'XCircle'} 
                                       className={isCorrect ? 'text-green-600' : 'text-red-600'} 
@@ -434,7 +434,7 @@ const StudentDashboard = () => {
                               disabled={selectedAnswers[courseQuestions[currentQuestion].id] === undefined}
                               className={testMode === 'adaptive' ? 'w-full' : ''}
                             >
-                              {testMode === 'adaptive' ? 'Ответить' : currentQuestion === courseQuestions.length - 1 ? 'Завершить' : 'Далее'}
+                              {currentQuestion === courseQuestions.length - 1 && !showAnswerFeedback ? 'Завершить' : testMode === 'adaptive' ? 'Ответить' : 'Далее'}
                               <Icon name={testMode === 'adaptive' ? 'Send' : 'ChevronRight'} size={16} className="ml-2" />
                             </Button>
                           </div>
@@ -442,7 +442,7 @@ const StudentDashboard = () => {
                       </CardContent>
                     </Card>
 
-                    {showAnswerFeedback && testMode === 'adaptive' && (
+                    {showAnswerFeedback && (
                       <Card className={`animate-scale-in ${isAnswerCorrect ? 'border-green-500' : 'border-red-500'} border-2`}>
                         <CardHeader>
                           <div className="flex items-center gap-3">
@@ -488,14 +488,30 @@ const StudentDashboard = () => {
                               </div>
                             </div>
                             
-                            <Button 
-                              className="w-full" 
-                              size="lg"
-                              onClick={handleNextQuestion}
-                            >
-                              Изучил, давай дальше
-                              <Icon name="ArrowRight" size={20} className="ml-2" />
-                            </Button>
+                            <div className="flex gap-3">
+                              {testMode === 'full' && currentQuestion > 0 && (
+                                <Button 
+                                  variant="outline"
+                                  className="flex-1" 
+                                  size="lg"
+                                  onClick={() => {
+                                    setShowAnswerFeedback(false);
+                                    setCurrentQuestion(currentQuestion - 1);
+                                  }}
+                                >
+                                  <Icon name="ChevronLeft" size={20} className="mr-2" />
+                                  Назад
+                                </Button>
+                              )}
+                              <Button 
+                                className="flex-1" 
+                                size="lg"
+                                onClick={handleNextQuestion}
+                              >
+                                {testMode === 'full' ? (currentQuestion === courseQuestions.length - 1 ? 'К результатам' : 'Далее') : 'Изучил, давай дальше'}
+                                <Icon name="ArrowRight" size={20} className="ml-2" />
+                              </Button>
+                            </div>
                           </CardContent>
                         )}
                       </Card>
