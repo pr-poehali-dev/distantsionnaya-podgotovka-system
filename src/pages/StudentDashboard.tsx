@@ -292,24 +292,28 @@ const StudentDashboard = () => {
               {myCourses.map((course: any) => {
                 const questionsCount = mockTestQuestions.filter(q => q.courseId === course.id).length;
                 const stats = courseStats[course.id] || {};
+                const isActive = course.assignment.expiresAt && new Date(course.assignment.expiresAt) > new Date();
                 
                 return (
                   <Card key={course.id} className="hover:shadow-xl transition-shadow cursor-pointer" onClick={() => setSelectedCourse(course.id)}>
-                    <div className="h-20 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-t-xl flex items-center justify-center">
+                    <div className={`h-20 rounded-t-xl flex items-center justify-center relative ${
+                      isActive 
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600' 
+                        : 'bg-gradient-to-r from-gray-400 to-gray-500'
+                    }`}>
                       <Icon name="BookOpen" className="text-white" size={32} />
+                      <div className="absolute top-2 right-2">
+                        <Badge 
+                          variant={isActive ? 'default' : 'secondary'}
+                          className={isActive ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-600 hover:bg-gray-700'}
+                        >
+                          {isActive ? 'Активный курс' : 'Завершенный курс'}
+                        </Badge>
+                      </div>
                     </div>
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start gap-3">
                         <CardTitle className="text-lg leading-tight">{course.title}</CardTitle>
-                        <Badge variant={
-                          course.assignment.status === 'completed' ? 'default' :
-                          course.assignment.status === 'in_progress' ? 'secondary' :
-                          'outline'
-                        }>
-                          {course.assignment.status === 'completed' ? 'Завершен' :
-                           course.assignment.status === 'in_progress' ? 'В процессе' :
-                           'Новый'}
-                        </Badge>
                       </div>
                       <CardDescription className="text-sm mt-1">{course.description}</CardDescription>
                     </CardHeader>
