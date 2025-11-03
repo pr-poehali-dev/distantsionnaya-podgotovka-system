@@ -27,6 +27,7 @@ const StudentDashboard = () => {
   const [viewedMaterials, setViewedMaterials] = useState<Set<string>>(new Set());
   const [showAnswerFeedback, setShowAnswerFeedback] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
+  const [showErrorAnalysis, setShowErrorAnalysis] = useState<'questions' | 'documents' | null>(null);
 
   if (!currentUser) return null;
 
@@ -91,6 +92,28 @@ const StudentDashboard = () => {
 
   const getWrongAnswers = () => {
     return courseQuestions.filter(q => selectedAnswers[q.id] !== q.correctAnswer);
+  };
+
+  const getUniqueDocumentsFromErrors = () => {
+    const wrongAnswers = getWrongAnswers();
+    const documentsMap = new Map();
+    
+    wrongAnswers.forEach(q => {
+      if (q.regulatoryDocument && q.documentClause) {
+        const key = `${q.regulatoryDocument}|${q.documentClause}`;
+        if (!documentsMap.has(key)) {
+          documentsMap.set(key, {
+            document: q.regulatoryDocument,
+            clause: q.documentClause,
+            text: q.clauseText,
+            questions: []
+          });
+        }
+        documentsMap.get(key).questions.push(q.question);
+      }
+    });
+    
+    return Array.from(documentsMap.values());
   };
 
   const handleMaterialOpen = (material: CourseMaterial) => {
@@ -337,7 +360,7 @@ const StudentDashboard = () => {
                       </CardContent>
                     </Card>
                   </div>
-                ) : !showResults ? (
+                ) : testMode === 'full' && !showResults ? (
                   <div className="space-y-6">
                     <Card>
                       <CardHeader>
@@ -478,7 +501,7 @@ const StudentDashboard = () => {
                       </Card>
                     )}
                   </div>
-                ) : (
+                ) : testMode === 'adaptive' && showResults ? (
                   <div className="space-y-6">
                     <Card>
                       <CardHeader>
@@ -495,7 +518,7 @@ const StudentDashboard = () => {
                         </div>
 
                         <div className="flex gap-4">
-                          <Button className="flex-1" onClick={() => setTestMode(null)}>
+                          <Button className="flex-1" onClick={() => { setTestMode(null); setShowErrorAnalysis(null); }}>
                             <Icon name="RotateCcw" size={16} className="mr-2" />
                             Пройти снова
                           </Button>
@@ -514,32 +537,103 @@ const StudentDashboard = () => {
                             <Icon name="AlertCircle" size={24} className="text-amber-600" />
                             Работа над ошибками
                           </CardTitle>
-                          <CardDescription>Вопросы, на которые вы ответили неправильно</CardDescription>
+                          <CardDescription>Выберите режим анализа ошибок</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                          {getWrongAnswers().map((question, index) => (
-                            <div key={question.id} className="p-4 border rounded-lg space-y-3">
-                              <p className="font-medium">Вопрос {index + 1}: {question.question}</p>
-                              <div className="space-y-2">
-                                <p className="text-sm text-red-600">
-                                  ❌ Ваш ответ: {question.options[selectedAnswers[question.id]]}
-                                </p>
-                                <p className="text-sm text-green-600">
-                                  ✅ Правильный ответ: {question.options[question.correctAnswer]}
-                                </p>
-                                {question.explanation && (
-                                  <p className="text-sm text-muted-foreground bg-blue-50 p-3 rounded">
-                                    💡 {question.explanation}
-                                  </p>
-                                )}
-                              </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Button 
+                              variant={showErrorAnalysis === 'questions' ? 'default' : 'outline'}
+                              className="h-auto py-6 flex-col gap-2"
+                              onClick={() => setShowErrorAnalysis(showErrorAnalysis === 'questions' ? null : 'questions')}
+                            >
+                              <Icon name="HelpCircle" size={28} />
+                              <span className="font-semibold">Посмотреть вопросы</span>
+                              <span className="text-xs opacity-80">в которых я сделал ошибку</span>
+                            </Button>
+                            
+                            <Button 
+                              variant={showErrorAnalysis === 'documents' ? 'default' : 'outline'}
+                              className="h-auto py-6 flex-col gap-2"
+                              onClick={() => setShowErrorAnalysis(showErrorAnalysis === 'documents' ? null : 'documents')}
+                            >
+                              <Icon name="BookOpen" size={28} />
+                              <span className="font-semibold">Нормативные документы</span>
+                              <span className="text-xs opacity-80">которые надо изучить</span>
+                            </Button>
+                          </div>
+
+                          {showErrorAnalysis === 'questions' && (
+                            <div className="space-y-4 mt-6 border-t pt-6">
+                              <h3 className="font-semibold text-lg flex items-center gap-2">
+                                <Icon name="XCircle" className="text-red-600" size={20} />
+                                Вопросы с ошибками ({getWrongAnswers().length})
+                              </h3>
+                              {getWrongAnswers().map((question, index) => (
+                                <div key={question.id} className="p-4 border rounded-lg space-y-3 bg-red-50/50">
+                                  <p className="font-medium">Вопрос {index + 1}: {question.question}</p>
+                                  <div className="space-y-2">
+                                    <p className="text-sm text-red-600 flex items-center gap-2">
+                                      <Icon name="X" size={16} />
+                                      <span>Ваш ответ: {question.options[selectedAnswers[question.id]]}</span>
+                                    </p>
+                                    <p className="text-sm text-green-600 flex items-center gap-2">
+                                      <Icon name="Check" size={16} />
+                                      <span>Правильный ответ: {question.options[question.correctAnswer]}</span>
+                                    </p>
+                                    {question.explanation && (
+                                      <p className="text-sm text-muted-foreground bg-blue-50 p-3 rounded">
+                                        💡 {question.explanation}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          )}
+
+                          {showErrorAnalysis === 'documents' && (
+                            <div className="space-y-4 mt-6 border-t pt-6">
+                              <h3 className="font-semibold text-lg flex items-center gap-2">
+                                <Icon name="BookMarked" className="text-indigo-600" size={20} />
+                                Нормативные документы для изучения ({getUniqueDocumentsFromErrors().length})
+                              </h3>
+                              {getUniqueDocumentsFromErrors().map((doc, index) => (
+                                <div key={index} className="p-5 border rounded-lg space-y-3 bg-indigo-50/50">
+                                  <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                      <Icon name="FileText" className="text-indigo-600" size={20} />
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="font-semibold text-indigo-900 mb-1">
+                                        {doc.document}
+                                      </p>
+                                      <p className="text-sm text-indigo-700 font-medium mb-3">
+                                        {doc.clause}
+                                      </p>
+                                      <div className="bg-white p-4 rounded border border-indigo-200">
+                                        <p className="text-sm text-gray-700 leading-relaxed">
+                                          {doc.text}
+                                        </p>
+                                      </div>
+                                      <div className="mt-3">
+                                        <p className="text-xs text-muted-foreground mb-2">Связанные вопросы:</p>
+                                        <ul className="text-xs space-y-1">
+                                          {doc.questions.map((q: string, i: number) => (
+                                            <li key={i} className="text-gray-600">• {q}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     )}
                   </div>
-                )}
+                ) : null}
               </TabsContent>
 
               <TabsContent value="materials">
