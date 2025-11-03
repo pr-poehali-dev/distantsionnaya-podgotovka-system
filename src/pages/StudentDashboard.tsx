@@ -810,50 +810,193 @@ const StudentDashboard = () => {
               </TabsContent>
 
               <TabsContent value="materials">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Учебные материалы</CardTitle>
-                    <CardDescription>Презентации, видео и нормативные документы</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {courseMaterials.map((material) => (
-                      <div key={material.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                            <Icon
-                              name={getMaterialIcon(material.type)}
-                              className="text-indigo-600"
-                              size={20}
-                            />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium">{material.title}</p>
-                              {viewedMaterials.has(material.id) && (
-                                <Badge variant="outline" className="text-green-600 border-green-600">
-                                  <Icon name="Check" size={12} className="mr-1" />
-                                  Просмотрено
-                                </Badge>
-                              )}
+                <Tabs defaultValue="all" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4 mb-4">
+                    <TabsTrigger value="all">Все материалы</TabsTrigger>
+                    <TabsTrigger value="presentations">Презентации</TabsTrigger>
+                    <TabsTrigger value="videos">Видео</TabsTrigger>
+                    <TabsTrigger value="documents">Нормативные документы</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="all">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Все учебные материалы</CardTitle>
+                        <CardDescription>Презентации, видео и нормативные документы</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {courseMaterials.map((material) => (
+                          <div key={material.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                <Icon
+                                  name={getMaterialIcon(material.type)}
+                                  className="text-indigo-600"
+                                  size={20}
+                                />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-medium">{material.title}</p>
+                                  {viewedMaterials.has(material.id) && (
+                                    <Badge variant="outline" className="text-green-600 border-green-600">
+                                      <Icon name="Check" size={12} className="mr-1" />
+                                      Просмотрено
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  {material.type === 'video' ? 'Видео' : material.type === 'presentation' ? 'Презентация' : 'Документ'}
+                                </p>
+                              </div>
                             </div>
-                            <p className="text-sm text-muted-foreground">
-                              {material.type === 'video' ? 'Видео' : material.type === 'presentation' ? 'Презентация' : 'Документ'}
-                            </p>
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={() => handleMaterialOpen(material)}>
+                                <Icon name="Eye" size={14} className="mr-1" />
+                                Открыть
+                              </Button>
+                              <Button size="sm" variant="outline">
+                                <Icon name="Download" size={14} />
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={() => handleMaterialOpen(material)}>
-                            <Icon name="Eye" size={14} className="mr-1" />
-                            Открыть
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Icon name="Download" size={14} />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="presentations">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Презентации</CardTitle>
+                        <CardDescription>Учебные презентации по курсу</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {courseMaterials.filter(m => m.type === 'presentation').length === 0 ? (
+                          <p className="text-muted-foreground text-center py-8">Презентаций пока нет</p>
+                        ) : (
+                          courseMaterials.filter(m => m.type === 'presentation').map((material) => (
+                            <div key={material.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                  <Icon name="Presentation" className="text-indigo-600" size={20} />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium">{material.title}</p>
+                                    {viewedMaterials.has(material.id) && (
+                                      <Badge variant="outline" className="text-green-600 border-green-600">
+                                        <Icon name="Check" size={12} className="mr-1" />
+                                        Просмотрено
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button size="sm" onClick={() => handleMaterialOpen(material)}>
+                                  <Icon name="Eye" size={14} className="mr-1" />
+                                  Открыть
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <Icon name="Download" size={14} />
+                                </Button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="videos">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Видеоматериалы</CardTitle>
+                        <CardDescription>Обучающие видео по курсу</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {courseMaterials.filter(m => m.type === 'video').length === 0 ? (
+                          <p className="text-muted-foreground text-center py-8">Видеоматериалов пока нет</p>
+                        ) : (
+                          courseMaterials.filter(m => m.type === 'video').map((material) => (
+                            <div key={material.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                  <Icon name="Video" className="text-indigo-600" size={20} />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium">{material.title}</p>
+                                    {viewedMaterials.has(material.id) && (
+                                      <Badge variant="outline" className="text-green-600 border-green-600">
+                                        <Icon name="Check" size={12} className="mr-1" />
+                                        Просмотрено
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button size="sm" onClick={() => handleMaterialOpen(material)}>
+                                  <Icon name="Eye" size={14} className="mr-1" />
+                                  Открыть
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <Icon name="Download" size={14} />
+                                </Button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="documents">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Нормативные документы</CardTitle>
+                        <CardDescription>Законы, правила и регламенты</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {courseMaterials.filter(m => m.type === 'document').length === 0 ? (
+                          <p className="text-muted-foreground text-center py-8">Нормативных документов пока нет</p>
+                        ) : (
+                          courseMaterials.filter(m => m.type === 'document').map((material) => (
+                            <div key={material.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                  <Icon name="FileText" className="text-indigo-600" size={20} />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium">{material.title}</p>
+                                    {viewedMaterials.has(material.id) && (
+                                      <Badge variant="outline" className="text-green-600 border-green-600">
+                                        <Icon name="Check" size={12} className="mr-1" />
+                                        Просмотрено
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button size="sm" onClick={() => handleMaterialOpen(material)}>
+                                  <Icon name="Eye" size={14} className="mr-1" />
+                                  Открыть
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <Icon name="Download" size={14} />
+                                </Button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
 
               <TabsContent value="search">
