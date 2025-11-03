@@ -315,9 +315,8 @@ const StudentDashboard = () => {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex flex-wrap gap-2">
-                        <Badge variant="outline" className="text-xs">{course.duration} часов</Badge>
-                        <Badge variant="outline" className="text-xs">{course.lessonsCount} уроков</Badge>
                         <Badge variant="outline" className="text-xs">{questionsCount} вопросов</Badge>
+                        <Badge variant="outline" className="text-xs">{course.documentsCount || 0} документов</Badge>
                       </div>
 
                       {course.assignment.activatedAt && course.assignment.expiresAt && (
