@@ -55,13 +55,18 @@ const StudentDashboard = () => {
 
   const handleAnswerSelect = (questionId: string, answerIndex: number) => {
     setSelectedAnswers({ ...selectedAnswers, [questionId]: answerIndex });
-    
+  };
+
+  const handleSubmitAnswer = () => {
     if (testMode === 'adaptive') {
-      const question = courseQuestions.find(q => q.id === questionId);
-      if (question) {
-        setIsAnswerCorrect(answerIndex === question.correctAnswer);
+      const question = courseQuestions[currentQuestion];
+      const selectedAnswer = selectedAnswers[question.id];
+      if (selectedAnswer !== undefined) {
+        setIsAnswerCorrect(selectedAnswer === question.correctAnswer);
         setShowAnswerFeedback(true);
       }
+    } else {
+      handleNextQuestion();
     }
   };
 
@@ -391,20 +396,23 @@ const StudentDashboard = () => {
 
                         {!showAnswerFeedback && (
                           <div className="flex justify-between">
+                            {testMode === 'full' && (
+                              <Button
+                                variant="outline"
+                                onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
+                                disabled={currentQuestion === 0}
+                              >
+                                <Icon name="ChevronLeft" size={16} className="mr-2" />
+                                Назад
+                              </Button>
+                            )}
                             <Button
-                              variant="outline"
-                              onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
-                              disabled={currentQuestion === 0 || testMode === 'adaptive'}
-                            >
-                              <Icon name="ChevronLeft" size={16} className="mr-2" />
-                              Назад
-                            </Button>
-                            <Button
-                              onClick={handleNextQuestion}
+                              onClick={handleSubmitAnswer}
                               disabled={selectedAnswers[courseQuestions[currentQuestion].id] === undefined}
+                              className={testMode === 'adaptive' ? 'w-full' : ''}
                             >
-                              {currentQuestion === courseQuestions.length - 1 ? 'Завершить' : 'Далее'}
-                              <Icon name="ChevronRight" size={16} className="ml-2" />
+                              {testMode === 'adaptive' ? 'Ответить' : currentQuestion === courseQuestions.length - 1 ? 'Завершить' : 'Далее'}
+                              <Icon name={testMode === 'adaptive' ? 'Send' : 'ChevronRight'} size={16} className="ml-2" />
                             </Button>
                           </div>
                         )}
