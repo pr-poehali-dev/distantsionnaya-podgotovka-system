@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import Icon from '@/components/ui/icon';
 import { mockUsers, mockCourses, mockAssignments, mockTestQuestions, mockMaterials, mockCertificates, getCurrentUser } from '@/data/mockData';
 import { useNavigate } from 'react-router-dom';
+import { CourseMaterial } from '@/data/mockData';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -21,6 +22,9 @@ const StudentDashboard = () => {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [showResults, setShowResults] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMaterial, setSelectedMaterial] = useState<CourseMaterial | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [viewedMaterials, setViewedMaterials] = useState<Set<string>>(new Set());
 
   if (!currentUser) return null;
 
@@ -71,6 +75,46 @@ const StudentDashboard = () => {
 
   const getWrongAnswers = () => {
     return courseQuestions.filter(q => selectedAnswers[q.id] !== q.correctAnswer);
+  };
+
+  const handleMaterialOpen = (material: CourseMaterial) => {
+    setSelectedMaterial(material);
+    setTimeout(() => {
+      setViewedMaterials(prev => new Set([...prev, material.id]));
+    }, 3000);
+  };
+
+  const handleMaterialClose = () => {
+    setSelectedMaterial(null);
+    setIsFullscreen(false);
+  };
+
+  const getMaterialIcon = (type: string) => {
+    switch (type) {
+      case 'video': return 'Play';
+      case 'presentation': return 'FileText';
+      case 'document': return 'FileText';
+      default: return 'File';
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    const viewer = document.getElementById('material-viewer');
+    if (!viewer) return;
+
+    if (!document.fullscreenElement) {
+      viewer.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
   };
 
   return (
@@ -398,7 +442,7 @@ const StudentDashboard = () => {
                 <Card>
                   <CardHeader>
                     <CardTitle>Учебные материалы</CardTitle>
-                    <CardDescription>Презентации и нормативные документы</CardDescription>
+                    <CardDescription>Презентации, видео и нормативные документы</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {courseMaterials.map((material) => (
@@ -406,22 +450,35 @@ const StudentDashboard = () => {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                             <Icon
-                              name={material.type === 'presentation' ? 'Presentation' : 'FileText'}
+                              name={getMaterialIcon(material.type)}
                               className="text-indigo-600"
                               size={20}
                             />
                           </div>
                           <div>
-                            <p className="font-medium">{material.title}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{material.title}</p>
+                              {viewedMaterials.has(material.id) && (
+                                <Badge variant="outline" className="text-green-600 border-green-600">
+                                  <Icon name="Check" size={12} className="mr-1" />
+                                  Просмотрено
+                                </Badge>
+                              )}
+                            </div>
                             <p className="text-sm text-muted-foreground">
-                              {material.type === 'presentation' ? 'Презентация' : 'Документ'}
+                              {material.type === 'video' ? 'Видео' : material.type === 'presentation' ? 'Презентация' : 'Документ'}
                             </p>
                           </div>
                         </div>
-                        <Button size="sm">
-                          <Icon name="Download" size={14} className="mr-1" />
-                          Скачать
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={() => handleMaterialOpen(material)}>
+                            <Icon name="Eye" size={14} className="mr-1" />
+                            Открыть
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            <Icon name="Download" size={14} />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </CardContent>
@@ -483,6 +540,57 @@ const StudentDashboard = () => {
           </>
         )}
       </div>
+
+      <Dialog open={!!selectedMaterial} onOpenChange={() => handleMaterialClose()}>
+        <DialogContent className="max-w-6xl h-[90vh] p-0" id="material-viewer">
+          <div className="flex flex-col h-full">
+            <DialogHeader className="p-6 pb-4 border-b">
+              <div className="flex items-center justify-between">
+                <div>
+                  <DialogTitle className="text-xl">{selectedMaterial?.title}</DialogTitle>
+                  <DialogDescription className="capitalize">
+                    {selectedMaterial?.type === 'video' ? 'Видео' : selectedMaterial?.type === 'presentation' ? 'Презентация' : 'Документ'}
+                  </DialogDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={toggleFullscreen}>
+                    <Icon name={isFullscreen ? 'Minimize' : 'Maximize'} size={16} className="mr-2" />
+                    {isFullscreen ? 'Выход' : 'Полный экран'}
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    <Icon name="Download" size={16} className="mr-2" />
+                    Скачать
+                  </Button>
+                </div>
+              </div>
+            </DialogHeader>
+            
+            <div className="flex-1 overflow-hidden bg-gray-50">
+              {selectedMaterial?.type === 'video' && (
+                <div className="w-full h-full flex items-center justify-center p-6">
+                  <video 
+                    controls 
+                    className="w-full h-full rounded-lg shadow-lg bg-black"
+                    src={selectedMaterial.url}
+                  >
+                    Ваш браузер не поддерживает воспроизведение видео.
+                  </video>
+                </div>
+              )}
+              
+              {(selectedMaterial?.type === 'presentation' || selectedMaterial?.type === 'document') && (
+                <div className="w-full h-full p-6">
+                  <iframe
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(selectedMaterial.url)}&embedded=true`}
+                    className="w-full h-full rounded-lg shadow-lg bg-white"
+                    title={selectedMaterial.title}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
