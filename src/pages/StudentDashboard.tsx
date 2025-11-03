@@ -37,6 +37,7 @@ const StudentDashboard = () => {
   const [examAttemptId, setExamAttemptId] = useState<number | null>(null);
   const [activeQuestions, setActiveQuestions] = useState<string[]>([]);
   const [courseStats, setCourseStats] = useState<Record<string, any>>({});
+  const [fullTestProgress, setFullTestProgress] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (currentUser) {
@@ -95,11 +96,55 @@ const StudentDashboard = () => {
     q.options.some(o => o.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const handleStartTest = (mode: 'adaptive' | 'full') => {
+  const handleStartTest = async (mode: 'adaptive' | 'full') => {
     setTestMode(mode);
+    
+    if (mode === 'full' && selectedCourse) {
+      const saved = await loadFullTestProgress(selectedCourse);
+      if (saved) {
+        setCurrentQuestion(saved.currentQuestion || 0);
+        setSelectedAnswers(saved.answers || {});
+        setShowResults(false);
+        return;
+      }
+    }
+    
     setCurrentQuestion(0);
     setSelectedAnswers({});
     setShowResults(false);
+  };
+
+  const loadFullTestProgress = async (courseId: string) => {
+    try {
+      const key = `fulltest_${currentUser.id}_${courseId}`;
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        const data = JSON.parse(saved);
+        return data;
+      }
+    } catch (error) {
+      console.error('Failed to load progress', error);
+    }
+    return null;
+  };
+
+  const saveFullTestProgress = () => {
+    if (testMode === 'full' && selectedCourse) {
+      const key = `fulltest_${currentUser.id}_${selectedCourse}`;
+      const data = {
+        currentQuestion,
+        answers: selectedAnswers,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+  };
+
+  const clearFullTestProgress = () => {
+    if (selectedCourse) {
+      const key = `fulltest_${currentUser.id}_${selectedCourse}`;
+      localStorage.removeItem(key);
+    }
   };
 
   const handleAnswerSelect = (questionId: string, answerIndex: number) => {
@@ -122,9 +167,12 @@ const StudentDashboard = () => {
   const handleNextQuestion = () => {
     setShowAnswerFeedback(false);
     if (currentQuestion < courseQuestions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+      const nextQuestion = currentQuestion + 1;
+      setCurrentQuestion(nextQuestion);
+      saveFullTestProgress();
     } else {
       setShowResults(true);
+      clearFullTestProgress();
     }
   };
 
@@ -379,6 +427,9 @@ const StudentDashboard = () => {
                 variant="ghost" 
                 onClick={() => {
                   setSelectedCourse(null);
+                  if (testMode === 'full') {
+                    clearFullTestProgress();
+                  }
                   setTestMode(null);
                   setCurrentQuestion(0);
                   setSelectedAnswers({});
@@ -402,6 +453,9 @@ const StudentDashboard = () => {
                     variant="outline" 
                     size="sm"
                     onClick={() => {
+                      if (testMode === 'full') {
+                        clearFullTestProgress();
+                      }
                       setTestMode(null);
                       setCurrentQuestion(0);
                       setSelectedAnswers({});
@@ -475,7 +529,22 @@ const StudentDashboard = () => {
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <Button className="w-full" onClick={() => handleStartTest('full')}>
+                        <Button className="w-full" onClick={async () => {
+                          const saved = await loadFullTestProgress(selectedCourse || '');
+                          if (saved && saved.currentQuestion > 0) {
+                            const shouldContinue = window.confirm(
+                              `Найден сохраненный прогресс (вопрос ${saved.currentQuestion + 1}/${courseQuestions.length}). Продолжить с этого места?`
+                            );
+                            if (shouldContinue) {
+                              handleStartTest('full');
+                            } else {
+                              clearFullTestProgress();
+                              handleStartTest('full');
+                            }
+                          } else {
+                            handleStartTest('full');
+                          }
+                        }}>
                           <Icon name="Play" size={16} className="mr-2" />
                           Начать полный тест
                         </Button>
