@@ -375,10 +375,45 @@ const StudentDashboard = () => {
         ) : (
           <>
             <div className="mb-6">
-              <Button variant="ghost" onClick={() => setSelectedCourse(null)} className="mb-4">
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  setSelectedCourse(null);
+                  setTestMode(null);
+                  setCurrentQuestion(0);
+                  setSelectedAnswers({});
+                  setShowResults(false);
+                  setShowAnswerFeedback(false);
+                }} 
+                className="mb-4"
+              >
                 <Icon name="ArrowLeft" size={20} className="mr-2" />
                 Назад к курсам
               </Button>
+              {testMode && (
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Icon name="Info" className="text-blue-600" size={20} />
+                    <span className="text-sm font-medium text-blue-900">
+                      Режим: {testMode === 'adaptive' ? 'Адаптивная подготовка' : testMode === 'full' ? 'Полное тестирование' : 'Экзамен'}
+                    </span>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setTestMode(null);
+                      setCurrentQuestion(0);
+                      setSelectedAnswers({});
+                      setShowResults(false);
+                      setShowAnswerFeedback(false);
+                    }}
+                  >
+                    <Icon name="X" size={16} className="mr-2" />
+                    Выйти из режима
+                  </Button>
+                </div>
+              )}
               <h1 className="text-3xl font-bold mb-2">{selectedCourseData?.title}</h1>
               <p className="text-muted-foreground">{selectedCourseData?.description}</p>
             </div>
