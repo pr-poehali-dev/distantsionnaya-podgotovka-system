@@ -360,7 +360,7 @@ const StudentDashboard = () => {
                       </CardContent>
                     </Card>
                   </div>
-                ) : testMode === 'full' && !showResults ? (
+                ) : (testMode === 'adaptive' || testMode === 'full') && !showResults ? (
                   <div className="space-y-6">
                     <Card>
                       <CardHeader>
@@ -501,7 +501,7 @@ const StudentDashboard = () => {
                       </Card>
                     )}
                   </div>
-                ) : testMode === 'adaptive' && showResults ? (
+                ) : showResults ? (
                   <div className="space-y-6">
                     <Card>
                       <CardHeader>
