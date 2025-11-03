@@ -279,7 +279,7 @@ export const AdaptiveTestMode = ({ questions, studentId, courseId, onExit }: Ada
                       {currentQuestion.clauseText}
                     </p>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
