@@ -36,6 +36,46 @@ const StudentDashboard = () => {
   const [showExamStats, setShowExamStats] = useState(false);
   const [examAttemptId, setExamAttemptId] = useState<number | null>(null);
   const [activeQuestions, setActiveQuestions] = useState<string[]>([]);
+  const [courseStats, setCourseStats] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    if (currentUser) {
+      loadCourseStats();
+    }
+  }, [currentUser]);
+
+  const loadCourseStats = async () => {
+    const stats: Record<string, any> = {};
+    
+    for (const course of myCourses) {
+      try {
+        const adaptiveRes = await fetch(
+          `https://functions.poehali.dev/864d635a-59f0-455f-9cfd-a169f79727be?studentId=${currentUser.id}&courseId=${course.id}`
+        );
+        const adaptiveData = await adaptiveRes.json();
+        const masteredCount = adaptiveData.progress?.filter((p: any) => p.isMastered).length || 0;
+
+        const examRes = await fetch(
+          `https://functions.poehali.dev/0c78602b-f1a2-42cd-bafa-aa660eb0135f?studentId=${currentUser.id}&courseId=${course.id}`
+        );
+        const examData = await examRes.json();
+        const bestExam = examData.attempts?.reduce((best: any, attempt: any) => {
+          if (!best || attempt.correctAnswers > best.correctAnswers) return attempt;
+          return best;
+        }, null);
+
+        stats[course.id] = {
+          adaptiveMastered: masteredCount,
+          bestExamScore: bestExam?.correctAnswers || null,
+          bestExamDate: bestExam?.finishedAt || null,
+        };
+      } catch (error) {
+        console.error('Failed to load stats for course', course.id, error);
+      }
+    }
+    
+    setCourseStats(stats);
+  };
 
   if (!currentUser) return null;
 
@@ -249,48 +289,94 @@ const StudentDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {myCourses.map((course: any) => (
-                <Card key={course.id} className="hover:shadow-xl transition-shadow cursor-pointer" onClick={() => setSelectedCourse(course.id)}>
-                  <div className="h-32 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-t-xl flex items-center justify-center">
-                    <Icon name="BookOpen" className="text-white" size={48} />
-                  </div>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <CardTitle className="mb-2">{course.title}</CardTitle>
-                        <CardDescription>{course.description}</CardDescription>
+              {myCourses.map((course: any) => {
+                const questionsCount = mockTestQuestions.filter(q => q.courseId === course.id).length;
+                const stats = courseStats[course.id] || {};
+                
+                return (
+                  <Card key={course.id} className="hover:shadow-xl transition-shadow cursor-pointer" onClick={() => setSelectedCourse(course.id)}>
+                    <div className="h-20 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-t-xl flex items-center justify-center">
+                      <Icon name="BookOpen" className="text-white" size={32} />
+                    </div>
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start gap-3">
+                        <CardTitle className="text-lg leading-tight">{course.title}</CardTitle>
+                        <Badge variant={
+                          course.assignment.status === 'completed' ? 'default' :
+                          course.assignment.status === 'in_progress' ? 'secondary' :
+                          'outline'
+                        }>
+                          {course.assignment.status === 'completed' ? 'Завершен' :
+                           course.assignment.status === 'in_progress' ? 'В процессе' :
+                           'Новый'}
+                        </Badge>
                       </div>
-                      <Badge variant={
-                        course.assignment.status === 'completed' ? 'default' :
-                        course.assignment.status === 'in_progress' ? 'secondary' :
-                        'outline'
-                      }>
-                        {course.assignment.status === 'completed' ? 'Завершен' :
-                         course.assignment.status === 'in_progress' ? 'В процессе' :
-                         'Новый'}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex gap-2">
-                      <Badge variant="outline">{course.duration} часов</Badge>
-                      <Badge variant="outline">{course.lessonsCount} уроков</Badge>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Прогресс</span>
-                        <span className="font-semibold">{course.assignment.progress}%</span>
+                      <CardDescription className="text-sm mt-1">{course.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline" className="text-xs">{course.duration} часов</Badge>
+                        <Badge variant="outline" className="text-xs">{course.lessonsCount} уроков</Badge>
+                        <Badge variant="outline" className="text-xs">{questionsCount} вопросов</Badge>
                       </div>
-                      <Progress value={course.assignment.progress} />
-                    </div>
-                    {course.assignment.dueDate && (
-                      <p className="text-sm text-muted-foreground">
-                        Срок: {new Date(course.assignment.dueDate).toLocaleDateString('ru')}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+
+                      {course.assignment.activatedAt && course.assignment.expiresAt && (
+                        <div className="text-xs text-muted-foreground bg-gray-50 p-2 rounded">
+                          <Icon name="Calendar" size={12} className="inline mr-1" />
+                          Срок доступа: {new Date(course.assignment.activatedAt).toLocaleDateString('ru-RU')} - {new Date(course.assignment.expiresAt).toLocaleDateString('ru-RU')}
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Прогресс</span>
+                          <span className="font-semibold">{course.assignment.progress}%</span>
+                        </div>
+                        <Progress value={course.assignment.progress} className="h-2" />
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-2 pt-2 border-t">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground flex items-center gap-1">
+                            <Icon name="Zap" size={12} />
+                            Адаптивный тренинг
+                          </span>
+                          <span className="font-medium">
+                            {stats.adaptiveMastered || 0} / {questionsCount}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground flex items-center gap-1">
+                            <Icon name="ListChecks" size={12} />
+                            Полный тест
+                          </span>
+                          <span className="font-medium">—</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground flex items-center gap-1">
+                            <Icon name="Award" size={12} />
+                            Экзамен
+                          </span>
+                          <span className="font-medium">
+                            {stats.bestExamScore ? (
+                              <>
+                                {stats.bestExamScore}/20
+                                {stats.bestExamDate && (
+                                  <span className="text-muted-foreground ml-1">
+                                    ({new Date(stats.bestExamDate).toLocaleDateString('ru-RU')})
+                                  </span>
+                                )}
+                              </>
+                            ) : '—'}
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </>
         ) : (
